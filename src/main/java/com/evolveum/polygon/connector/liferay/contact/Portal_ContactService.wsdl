@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="urn:http.service.portal.liferay.com" xmlns:intf="urn:http.service.portal.liferay.com" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns1="http://model.portal.liferay.com" xmlns:tns2="http://util.kernel.portal.liferay.com" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:http.service.portal.liferay.com">
+	<!--WSDL created by Apache Axis version: 1.4Built on Apr 22, 2006 (06:55:48 PDT)-->
+	<wsdl:types>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://model.portal.liferay.com">
+			<import namespace="http://util.kernel.portal.liferay.com"/>
+			<import namespace="urn:http.service.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="ContactSoap">
+				<sequence>
+					<element name="accountId" type="xsd:long"/>
+					<element name="aimSn" nillable="true" type="soapenc:string"/>
+					<element name="birthday" nillable="true" type="xsd:dateTime"/>
+					<element name="classNameId" type="xsd:long"/>
+					<element name="classPK" type="xsd:long"/>
+					<element name="companyId" type="xsd:long"/>
+					<element name="contactId" type="xsd:long"/>
+					<element name="createDate" nillable="true" type="xsd:dateTime"/>
+					<element name="emailAddress" nillable="true" type="soapenc:string"/>
+					<element name="employeeNumber" nillable="true" type="soapenc:string"/>
+					<element name="employeeStatusId" nillable="true" type="soapenc:string"/>
+					<element name="facebookSn" nillable="true" type="soapenc:string"/>
+					<element name="firstName" nillable="true" type="soapenc:string"/>
+					<element name="hoursOfOperation" nillable="true" type="soapenc:string"/>
+					<element name="icqSn" nillable="true" type="soapenc:string"/>
+					<element name="jabberSn" nillable="true" type="soapenc:string"/>
+					<element name="jobClass" nillable="true" type="soapenc:string"/>
+					<element name="jobTitle" nillable="true" type="soapenc:string"/>
+					<element name="lastName" nillable="true" type="soapenc:string"/>
+					<element name="male" type="xsd:boolean"/>
+					<element name="middleName" nillable="true" type="soapenc:string"/>
+					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
+					<element name="msnSn" nillable="true" type="soapenc:string"/>
+					<element name="mySpaceSn" nillable="true" type="soapenc:string"/>
+					<element name="parentContactId" type="xsd:long"/>
+					<element name="prefixId" type="xsd:int"/>
+					<element name="primaryKey" type="xsd:long"/>
+					<element name="skypeSn" nillable="true" type="soapenc:string"/>
+					<element name="smsSn" nillable="true" type="soapenc:string"/>
+					<element name="suffixId" type="xsd:int"/>
+					<element name="twitterSn" nillable="true" type="soapenc:string"/>
+					<element name="userId" type="xsd:long"/>
+					<element name="userName" nillable="true" type="soapenc:string"/>
+					<element name="ymSn" nillable="true" type="soapenc:string"/>
+				</sequence>
+			</complexType>
+		</schema>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:http.service.portal.liferay.com">
+			<import namespace="http://util.kernel.portal.liferay.com"/>
+			<import namespace="http://model.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="ArrayOf_xsd_string">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<attribute ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+			<complexType name="ArrayOf_tns2_ContactSoap">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:ContactSoap[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+		</schema>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://util.kernel.portal.liferay.com">
+			<import namespace="urn:http.service.portal.liferay.com"/>
+			<import namespace="http://model.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType abstract="true" name="OrderByComparator">
+				<sequence>
+					<element name="ascending" type="xsd:boolean"/>
+					<element name="orderBy" nillable="true" type="soapenc:string"/>
+					<element name="orderByConditionFields" nillable="true" type="impl:ArrayOf_xsd_string"/>
+					<element name="orderByFields" nillable="true" type="impl:ArrayOf_xsd_string"/>
+				</sequence>
+			</complexType>
+		</schema>
+	</wsdl:types>
+	<wsdl:message name="getContactsCountRequest">
+		<wsdl:part name="classNameId" type="xsd:long"/>
+		<wsdl:part name="classPK" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="getContactRequest">
+		<wsdl:part name="contactId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="getContactsRequest">
+		<wsdl:part name="classNameId" type="xsd:long"/>
+		<wsdl:part name="classPK" type="xsd:long"/>
+		<wsdl:part name="start" type="xsd:int"/>
+		<wsdl:part name="end" type="xsd:int"/>
+		<wsdl:part name="orderByComparator" type="tns2:OrderByComparator"/>
+	</wsdl:message>
+	<wsdl:message name="getContactsCountResponse">
+		<wsdl:part name="getContactsCountReturn" type="xsd:int"/>
+	</wsdl:message>
+	<wsdl:message name="getContactResponse">
+		<wsdl:part name="getContactReturn" type="tns1:ContactSoap"/>
+	</wsdl:message>
+	<wsdl:message name="getContactsResponse">
+		<wsdl:part name="getContactsReturn" type="impl:ArrayOf_tns2_ContactSoap"/>
+	</wsdl:message>
+	<wsdl:portType name="ContactServiceSoap">
+		<wsdl:operation name="getContact" parameterOrder="contactId">
+			<wsdl:input message="impl:getContactRequest" name="getContactRequest"/>
+			<wsdl:output message="impl:getContactResponse" name="getContactResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getContactsCount" parameterOrder="classNameId classPK">
+			<wsdl:input message="impl:getContactsCountRequest" name="getContactsCountRequest"/>
+			<wsdl:output message="impl:getContactsCountResponse" name="getContactsCountResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getContacts" parameterOrder="classNameId classPK start end orderByComparator">
+			<wsdl:input message="impl:getContactsRequest" name="getContactsRequest"/>
+			<wsdl:output message="impl:getContactsResponse" name="getContactsResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="Portal_ContactServiceSoapBinding" type="impl:ContactServiceSoap">
+		<wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="getContact">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getContactRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getContactResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getContactsCount">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getContactsCountRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getContactsCountResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getContacts">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getContactsRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getContactsResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="ContactServiceSoapService">
+		<wsdl:port binding="impl:Portal_ContactServiceSoapBinding" name="Portal_ContactService">
+			<wsdlsoap:address location="http://localhost:8080/api/axis/Portal_ContactService"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

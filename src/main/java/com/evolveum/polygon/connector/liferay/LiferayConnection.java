@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.evolveum.polygon;
+package com.evolveum.polygon.connector.liferay;
 
 import org.identityconnectors.common.logging.Log;
 
