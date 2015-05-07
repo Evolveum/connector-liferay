@@ -27,7 +27,6 @@ import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.exceptions.UnknownUidException;
 import org.identityconnectors.framework.common.objects.*;
-import org.identityconnectors.framework.common.objects.filter.AbstractFilterTranslator;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.Configuration;
 import org.identityconnectors.framework.spi.Connector;
@@ -36,13 +35,10 @@ import org.identityconnectors.framework.spi.operations.*;
 
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @ConnectorClass(displayNameKey = "liferay.connector.display", configurationClass = LiferayConfiguration.class)
-public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, DeleteOp, UpdateOp, SearchOp<String> {
+public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, DeleteOp, UpdateOp, SearchOp<LiferayFilter>, SyncOp {
 
     private static final Log LOG = Log.getLog(LiferayConnector.class);
 
@@ -60,11 +56,14 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     private static final int ATTR_BIRTHDAY_YEAR_DEFAULT = 1970; // value from liferay GUI
     private static final boolean ATTR_SEND_EMAIL_DEFAULT = false;
     private static final String ATTR_STRING_DEFAULT = ""; //call trim() in liferay
+    private static final int ATTR_STATUS_ENABLED = 0; //active user in liferay
+    private static final int ATTR_STATUS_DEFAULT = 2; //default user status in liferay (not visible)
+    private static final int ATTR_STATUS_DISABLED = 5; // when disabled in GUI manually
 
     // parameters in addUser()
     // autoPassword, autoScreenName - ignored, mandatory params in MidPoint see upper default
     private static final String ATTR_SCREEN_NAME = Name.NAME; //"screenName";
-    private static final String ATTR_EMAIL_ADDRESS = "emailAddress";
+    public static final String ATTR_EMAIL_ADDRESS = "emailAddress";
     private static final String ATTR_FACEBOOK_ID = "facebookId";
     private static final String ATTR_OPEN_ID = "openId";
     private static final String ATTR_LOCALE = "locale"; // same as languageId in updateUser
@@ -190,15 +189,33 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         attrFirstNameBuilder.setRequired(true);
         objClassBuilder.addAttributeInfo(attrFirstNameBuilder.build());
 
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_MIDDLE_NAME).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_LAST_NAME).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_PREFIX_ID, Integer.class).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_SUFFIX_ID, Integer.class).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_MALE, Boolean.class).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_BIRTHDAY_MONTH, Integer.class).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_BIRTHDAY_DAY, Integer.class).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_BIRTHDAY_YEAR, Integer.class).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_JOB_TITLE).build());
+        AttributeInfoBuilder attrMiddleNameBuilder = new AttributeInfoBuilder(ATTR_MIDDLE_NAME);
+        attrMiddleNameBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attrMiddleNameBuilder.build());
+        AttributeInfoBuilder attrLastNameBuilder = new AttributeInfoBuilder(ATTR_LAST_NAME);
+        attrLastNameBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attrLastNameBuilder.build());
+        AttributeInfoBuilder attrPrefixIdBuilder = new AttributeInfoBuilder(ATTR_PREFIX_ID, Integer.class);
+        attrPrefixIdBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attrPrefixIdBuilder.build());
+        AttributeInfoBuilder attrSufficIdBuilder = new AttributeInfoBuilder(ATTR_SUFFIX_ID, Integer.class);
+        attrSufficIdBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attrSufficIdBuilder.build());
+        AttributeInfoBuilder attrMaleBuilder = new AttributeInfoBuilder(ATTR_MALE, Boolean.class);
+        attrMaleBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attrMaleBuilder.build());
+        AttributeInfoBuilder attrBirthdayMontBuilder = new AttributeInfoBuilder(ATTR_BIRTHDAY_MONTH, Integer.class);
+        attrBirthdayMontBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attrBirthdayMontBuilder.build());
+        AttributeInfoBuilder attributeBirthdayDayBuilder = new AttributeInfoBuilder(ATTR_BIRTHDAY_DAY, Integer.class);
+        attributeBirthdayDayBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeBirthdayDayBuilder.build());
+        AttributeInfoBuilder attributeBirthdayYearBuilder = new AttributeInfoBuilder(ATTR_BIRTHDAY_YEAR, Integer.class);
+        attributeBirthdayYearBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeBirthdayYearBuilder.build());
+        AttributeInfoBuilder attributeJobTitleBuilder = new AttributeInfoBuilder(ATTR_JOB_TITLE);
+        attributeJobTitleBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeJobTitleBuilder.build());
 
         //not implemented now:
 //        private static final String ATTR_GROUP_IDS = "groupIds"; // long[]
@@ -207,23 +224,44 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
 //        private static final String ATTR_USER_GROUP_IDS = "userGroupIds"; // long[]
 
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_SEND_EMAIL, Boolean.class).build());
-
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_PASSWORD_RESET, Boolean.class).build());
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_REMINDER_QUERY_QUESTION).build());
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_REMINDER_QUERY_ANSWER).build());
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_TIME_ZONE_ID).build());
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_GREETING).build());
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_COMMENTS).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_SMS_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_AIM_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_FACEBOOK_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ICQ_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_JABBER_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_MSN_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_MY_SPACE_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_SKYPE_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_TWITTER_SN).build());
-        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_YM_SN).build());
+        AttributeInfoBuilder attributeSmsSnBuilder = new AttributeInfoBuilder(ATTR_SMS_SN);
+        attributeSmsSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeSmsSnBuilder.build());
+        AttributeInfoBuilder attributeAimSnBuilder = new AttributeInfoBuilder(ATTR_AIM_SN);
+        attributeSmsSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeAimSnBuilder.build());
+        AttributeInfoBuilder attributeFacebookSnBuilder = new AttributeInfoBuilder(ATTR_FACEBOOK_SN);
+        attributeFacebookSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeFacebookSnBuilder.build());
+        AttributeInfoBuilder attributeIcqSnBuilder = new AttributeInfoBuilder(ATTR_ICQ_SN);
+        attributeIcqSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeIcqSnBuilder.build());
+        AttributeInfoBuilder attributeJabberSnBuilder = new AttributeInfoBuilder(ATTR_JABBER_SN);
+        attributeJabberSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeJabberSnBuilder.build());
+        AttributeInfoBuilder attributeMsnSnBuilder = new AttributeInfoBuilder(ATTR_MSN_SN);
+        attributeMsnSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeMsnSnBuilder.build());
+        AttributeInfoBuilder attributeMySpaceSnBuilder = new AttributeInfoBuilder(ATTR_MY_SPACE_SN);
+        attributeMySpaceSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeMySpaceSnBuilder.build());
+        AttributeInfoBuilder attributeSkypeSnBuilder = new AttributeInfoBuilder(ATTR_SKYPE_SN);
+        attributeSkypeSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeSkypeSnBuilder.build());
+        AttributeInfoBuilder attributeTwitterSnBuilder = new AttributeInfoBuilder(ATTR_TWITTER_SN);
+        attributeTwitterSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeTwitterSnBuilder.build());
+        AttributeInfoBuilder attributeYmSnBuilder = new AttributeInfoBuilder(ATTR_YM_SN);
+        attributeYmSnBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
+        objClassBuilder.addAttributeInfo(attributeYmSnBuilder.build());
+
+        objClassBuilder.addAttributeInfo(OperationalAttributeInfos.ENABLE); //enabled/disabled - Administrative Status
         //not implemented now:
 //        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_USER_GROUP_ROLES).build()); //List<UserGroupRole>
 
@@ -244,6 +282,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     }
 
     private Uid createUser(Set<Attribute> attributes) {
+        LOG.ok("createUser attributes: {0}", attributes);
         String emailAddress = getStringAttr(attributes, ATTR_EMAIL_ADDRESS);
         if (isBlank(emailAddress)) {
             throw new InvalidAttributeValueException("Missing mandatory attribute " + ATTR_EMAIL_ADDRESS);
@@ -339,9 +378,8 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                     /*addresses, emailAddresses, phones, websites, announcementsDelivers,*/
                     sendEmail, serviceContext);
 
-            // activate user
-            int stateActive = 0;
-            userService.updateStatus(newUser.getUserId(), stateActive, serviceContext);
+            // activate user if needed
+            updateStatus(newUser.getUserId(), attributes);
 
             //other not set parameters to call updateUser
             boolean callUpdateUser = false;
@@ -360,22 +398,31 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                         serviceContext);
             }
 
-            Long id = newUser.getUserId();
+            long id = newUser.getUserId();
 
-            LOG.info("New user created, screenName: {0}, Uid: {1}, callUpdateUser: {2} ", screenName, id, callUpdateUser);
+            LOG.ok("New user created, screenName: {0}, Uid: {1}, callUpdateUser: {2} ", screenName, id, callUpdateUser);
 
-            return new Uid(id.toString());
+            return toUid(id);
         } catch (java.rmi.RemoteException e) {
             // if(e instanceof AxisFault){ -- Liferay not send server exception to client :(((
             throw new ConnectorIOException(e.getMessage(), e);
         }
     }
 
+    private void updateStatus(long userId, Set<Attribute> attributes) throws RemoteException {
+        Boolean enable = getAttr(attributes, OperationalAttributes.ENABLE_NAME, Boolean.class);
+        LOG.ok("updateStatus, userId: {0}, enabled: {1}", userId, enable);
+        if (enable != null) {
+            int newStatus = enable ? ATTR_STATUS_ENABLED : ATTR_STATUS_DISABLED;
+            userService.updateStatus(userId, newStatus);
+        }
+    }
 
     @Override
     public void delete(ObjectClass objectClass, Uid uid, OperationOptions options) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
             try {
+                LOG.ok("delete, Uid: {0}", uid);
                 userService.deleteUser(toLong(uid));
             } catch (java.rmi.RemoteException e) {
                 throw new ConnectorIOException(e.getMessage(), e);
@@ -395,6 +442,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     }
 
     private Uid updateUser(Uid uid, Set<Attribute> attributes) {
+        LOG.ok("updateUser, Uid: {0}, attributes: {1}", uid, attributes);
         Long targetUserId = toLong(uid);
 
         UserSoap origUser;
@@ -498,6 +546,10 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                     mySpaceSn, skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds, roleIds, userGroupRoles, userGroupIds,
                     /*addresses, emailAddresses, phones, websites, announcementsDelivers,*/
                     serviceContext);
+
+            // de/activate user if needed
+            updateStatus(origUser.getUserId(), attributes);
+
         } catch (java.rmi.RemoteException e) {
             throw new ConnectorIOException(e.getMessage(), e);
         }
@@ -506,24 +558,67 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     }
 
     @Override
-    public FilterTranslator<String> createFilterTranslator(ObjectClass objectClass, OperationOptions options) {
-        return new AbstractFilterTranslator<String>() {
-        };
+    public FilterTranslator<LiferayFilter> createFilterTranslator(ObjectClass objectClass, OperationOptions options) {
+        return new LiferayFilterTranslator();
     }
 
     @Override
-    public void executeQuery(ObjectClass objectClass, String query, ResultsHandler handler, OperationOptions options) {
-        if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
-            UserSoap[] users;
-            try {
-                int userCount = userService.getCompanyUsersCount(configuration.getCompanyId());
-                LOG.ok("Number of users in liferay: {0}", userCount);
-                users = userService.getCompanyUsers(configuration.getCompanyId(), 0, userCount);
+    public void executeQuery(ObjectClass objectClass, LiferayFilter query, ResultsHandler handler, OperationOptions options) {
 
-                for (UserSoap user : users) {
-                    ContactSoap contact = contactService.getContact(user.getContactId());
+        if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
+            try {
+                boolean contactsToGet = contactsToGet(options);
+                LOG.ok("executeQuery: {0}, contactsToGet: ", query, contactsToGet);
+                // find by screenName
+                if (query != null && query.byName != null) {
+                    UserSoap user = userService.getUserByScreenName(configuration.getCompanyId(), query.byName);
+                    ContactSoap contact = null;
+                    if (contactsToGet) {
+                        contact = contactService.getContact(user.getContactId());
+                    }
                     ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
                     handler.handle(connectorObject);
+
+                    //find by Uid (user Primary Key)
+                } else if (query != null && query.byUid != null) {
+                    UserSoap user = userService.getUserById(query.byUid);
+                    ContactSoap contact = null;
+                    if (contactsToGet) {
+                        contact = contactService.getContact(user.getContactId());
+                    }
+                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
+                    handler.handle(connectorObject);
+
+                    //find by emailAddress
+                } else if (query != null && query.byEmailAddress != null) {
+                    UserSoap user = userService.getUserByEmailAddress(configuration.getCompanyId(), query.byEmailAddress);
+                    ContactSoap contactSoap = new ContactSoap();
+                    ContactSoap contact = null;
+                    if (contactsToGet) {
+                        contact = contactService.getContact(user.getContactId());
+                    }
+                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
+                    handler.handle(connectorObject);
+
+                    // find all
+                } else {
+                    UserSoap[] users;
+                    int userCount = userService.getCompanyUsersCount(configuration.getCompanyId());
+                    LOG.ok("Number of users in liferay: {0}", userCount);
+                    users = userService.getCompanyUsers(configuration.getCompanyId(), 0, userCount);
+
+                    int count = 0;
+                    for (UserSoap user : users) {
+                        if (++count % 10 == 0) {
+                            LOG.ok("executeQuery: processing {0}. of {1} users", count, userCount);
+                        }
+                        ContactSoap contact = null;
+                        if (contactsToGet) {
+                            contact = contactService.getContact(user.getContactId());
+                        }
+                        ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
+                        handler.handle(connectorObject);
+                    }
                 }
 
             } catch (java.rmi.RemoteException e) {
@@ -532,6 +627,155 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         } else {
             throw new UnsupportedOperationException("Unsupported object class " + objectClass);
         }
+    }
+
+    private boolean contactsToGet(OperationOptions options) {
+        String[] attrsToGet = options.getAttributesToGet();
+        if (attrsToGet == null) {
+            // not configured, get all data
+            return true;
+        }
+        for (String attrToGet : attrsToGet) {
+            ObjectClassInfo objectClassInfo = schemaAccount();
+            Set<AttributeInfo> attributeInfos = objectClassInfo.getAttributeInfo();
+            for (AttributeInfo attributeInfo : attributeInfos) {
+                if (!attributeInfo.isReturnedByDefault() && attributeInfo.getName().equals(attrToGet))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void sync(ObjectClass objectClass, SyncToken token, SyncResultsHandler handler, OperationOptions options) {
+        if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {    // __ACCOUNT__
+            syncAccount(token, handler, options);
+        } else {
+            throw new UnsupportedOperationException("Unsupported object class " + objectClass);
+        }
+    }
+
+    private void syncAccount(SyncToken token, SyncResultsHandler handler, OperationOptions options) {
+        LOG.ok("syncAccount, token: {0}", token);
+        Date fromToken = null;
+        if (token != null) {
+            Object fromTokenValue = token.getValue();
+            if (fromTokenValue instanceof Long) {
+                fromToken = new Date((Long) fromTokenValue);
+            } else {
+                LOG.warn("Synchronization token is not long, ignoring");
+            }
+        }
+
+        try {
+            int userCount = userService.getCompanyUsersCount(configuration.getCompanyId());
+            LOG.ok("number of users in Liferay to synchronize: {0}", userCount);
+            UserSoap[] users = userService.getCompanyUsers(configuration.getCompanyId(), 0, userCount);
+
+            int changed = 0;
+            for (UserSoap user : users) {
+                Calendar lastModification = getLastModification(user);
+
+                // synchronization needed
+                if (fromToken == null || lastModification.getTime().after(fromToken)) {
+                    if (++changed % 10 == 0) {
+                        LOG.ok("syncAccount: processing {0}. of {1} users", changed, userCount);
+                    }
+                    ContactSoap contact = contactService.getContact(user.getContactId());
+
+                    SyncDeltaBuilder deltaBuilder = new SyncDeltaBuilder();
+                    SyncToken deltaToken = toSyncToken(lastModification.getTime());
+                    deltaBuilder.setToken(deltaToken);
+
+                    // all users are updated or created, we can differentiate create from update over
+                    // user.getCreateDate().after(fromToken), but it's not necessary to do this
+                    SyncDeltaType deltaType = SyncDeltaType.CREATE_OR_UPDATE;
+
+                    ConnectorObject targetObject = convertUserToConnectorObject(user, contact);
+                    deltaBuilder.setObject(targetObject);
+                    deltaBuilder.setUid(toUid(user.getUserId()));
+
+                    deltaBuilder.setDeltaType(deltaType);
+
+                    handler.handle(deltaBuilder.build());
+                }
+            }
+            LOG.ok("{0} user(s) changed in Liferay from date {1}", changed, fromToken);
+        } catch (RemoteException e) {
+            throw new ConnectorIOException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public SyncToken getLatestSyncToken(ObjectClass objectClass) {
+        if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {    // __ACCOUNT__
+            return getLatestSyncAccountToken();
+        } else {
+            throw new UnsupportedOperationException("Unsupported object class " + objectClass);
+        }
+    }
+
+    private SyncToken getLatestSyncAccountToken() {
+        Date lastChange = null;
+        UserSoap lastChangedUser = null;
+        try {
+            int userCount = userService.getCompanyUsersCount(configuration.getCompanyId());
+            UserSoap[] users = userService.getCompanyUsers(configuration.getCompanyId(), 0, userCount);
+
+            for (UserSoap user : users) {
+                Calendar lastModification = getLastModification(user);
+
+                if (lastChange == null) {
+                    lastChange = lastModification.getTime();
+                    lastChangedUser = user;
+                } else if (lastModification.getTime().after(lastChange)) {
+                    lastChange = lastModification.getTime();
+                    lastChangedUser = user;
+                }
+            }
+        } catch (RemoteException e) {
+            throw new ConnectorIOException(e.getMessage(), e);
+        }
+
+        LOG.ok("getLatestSyncAccountToken, last change was {0} on user {1} ", lastChange, lastChangedUser.getScreenName());
+
+        if (lastChange == null)
+            return null;
+
+        return toSyncToken(lastChange);
+    }
+
+    private SyncToken toSyncToken(Date date) {
+        if (date == null)
+            return null;
+
+        return new SyncToken(new Long(date.getTime()));
+    }
+
+    private Calendar getLastModification(UserSoap user) {
+        Calendar created = user.getCreateDate();
+
+        // not changed when change user state :( - TODO
+        // not changed when password modified (we use passwordModified for)
+        Calendar modified = user.getModifiedDate();
+
+        Calendar passwordModified = user.getPasswordModifiedDate();
+        //after a specified number of failed logins (Password Policy, User Account Lockout)
+//        user.getLockoutDate(); // not relevant, unlocking is automatized
+//        user.getLastFailedLoginDate(); // not relevant
+//        user.getLastLoginDate(); // not relevant
+//        user.getLoginDate()// not relevant
+
+        Calendar ret = created;
+
+        if (modified.getTime().after(ret.getTime()))
+            ret = modified;
+
+        if (passwordModified != null && passwordModified.getTime().after(ret.getTime()))
+            ret = passwordModified;
+
+        return ret;
     }
 
     private ConnectorObject convertUserToConnectorObject(UserSoap user, ContactSoap contact) {
@@ -551,23 +795,39 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         addAttr(builder, ATTR_REMINDER_QUERY_QUESTION, user.getReminderQueryQuestion());
         addAttr(builder, ATTR_REMINDER_QUERY_ANSWER, user.getReminderQueryAnswer());
 
-        addAttr(builder, ATTR_PREFIX_ID, contact.getPrefixId());
-        addAttr(builder, ATTR_SUFFIX_ID, contact.getSuffixId());
-        addAttr(builder, ATTR_MALE, contact.isMale());
-        Calendar birthday = contact.getBirthday();
-        addAttr(builder, ATTR_BIRTHDAY_MONTH, birthday.get(Calendar.MONTH));
-        addAttr(builder, ATTR_BIRTHDAY_DAY, birthday.get(Calendar.DAY_OF_MONTH));
-        addAttr(builder, ATTR_BIRTHDAY_YEAR, birthday.get(Calendar.YEAR));
-        addAttr(builder, ATTR_SMS_SN, contact.getSmsSn());
-        addAttr(builder, ATTR_AIM_SN, contact.getAimSn());
-        addAttr(builder, ATTR_FACEBOOK_SN, contact.getFacebookSn());
-        addAttr(builder, ATTR_ICQ_SN, contact.getIcqSn());
-        addAttr(builder, ATTR_JABBER_SN, contact.getJabberSn());
-        addAttr(builder, ATTR_MSN_SN, contact.getMsnSn());
-        addAttr(builder, ATTR_MY_SPACE_SN, contact.getMySpaceSn());
-        addAttr(builder, ATTR_SKYPE_SN, contact.getSkypeSn());
-        addAttr(builder, ATTR_TWITTER_SN, contact.getTwitterSn());
-        addAttr(builder, ATTR_YM_SN, contact.getYmSn());
+        if (contact != null) {
+            addAttr(builder, ATTR_PREFIX_ID, contact.getPrefixId());
+            addAttr(builder, ATTR_SUFFIX_ID, contact.getSuffixId());
+            addAttr(builder, ATTR_MALE, contact.isMale());
+            Calendar birthday = contact.getBirthday();
+            addAttr(builder, ATTR_BIRTHDAY_MONTH, birthday.get(Calendar.MONTH));
+            addAttr(builder, ATTR_BIRTHDAY_DAY, birthday.get(Calendar.DAY_OF_MONTH));
+            addAttr(builder, ATTR_BIRTHDAY_YEAR, birthday.get(Calendar.YEAR));
+            addAttr(builder, ATTR_SMS_SN, contact.getSmsSn());
+            addAttr(builder, ATTR_AIM_SN, contact.getAimSn());
+            addAttr(builder, ATTR_FACEBOOK_SN, contact.getFacebookSn());
+            addAttr(builder, ATTR_ICQ_SN, contact.getIcqSn());
+            addAttr(builder, ATTR_JABBER_SN, contact.getJabberSn());
+            addAttr(builder, ATTR_MSN_SN, contact.getMsnSn());
+            addAttr(builder, ATTR_MY_SPACE_SN, contact.getMySpaceSn());
+            addAttr(builder, ATTR_SKYPE_SN, contact.getSkypeSn());
+            addAttr(builder, ATTR_TWITTER_SN, contact.getTwitterSn());
+            addAttr(builder, ATTR_YM_SN, contact.getYmSn());
+        }
+
+        boolean enable = ATTR_STATUS_ENABLED == user.getStatus() ? true : false;
+        LOG.ok("convertUserToConnectorObject, user: {0}:{1}, enable: {2}", user.getUserId(), user.getScreenName(), enable);
+        addAttr(builder, OperationalAttributes.ENABLE_NAME, enable);
+
+        // password from Liferay are supported only when liferay configured as: passwords.encryption.algorithm=NONE
+        if (!user.isPasswordEncrypted()) {
+
+            GuardedString guardedPass = null;
+            if (user.getPassword() != null)
+                guardedPass = new GuardedString(user.getPassword().toCharArray());
+
+            addAttr(builder, OperationalAttributes.PASSWORD_NAME, guardedPass);
+        }
 
         // available interesting attributes: user.getModifiedDate(), user.getPasswordModifiedDate()
 
@@ -644,11 +904,11 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         }
     }
 
-    public static boolean isEmpty(String val) {
+    private static boolean isEmpty(String val) {
         return val == null ? true : "".equals(val);
     }
 
-    public static boolean isBlank(String val) {
+    private static boolean isBlank(String val) {
         return val == null ? true : isEmpty(val.trim());
     }
 
@@ -659,5 +919,4 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     private Uid toUid(long uid) {
         return new Uid((new Long(uid)).toString());
     }
-
 }

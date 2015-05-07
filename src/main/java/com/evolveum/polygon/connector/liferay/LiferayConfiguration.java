@@ -48,7 +48,7 @@ public class LiferayConfiguration extends AbstractConfiguration {
     @Override
     public void validate() {
         if (isBlank(hostUrl))
-            throw new ConfigurationException("hostUrl is empty, format: http://user:password@localhost:8080/api/axis/ where user in {ScreenName, UserID} and the portal authentication type must be set either to screen name or user ID, see: http://www.liferay.com/documentation/liferay-portal/6.2/development/-/ai/service-security-layers-liferay-portal-6-2-dev-guide-05-en");
+            throw new ConfigurationException("hostUrl is empty, format: http://user:password@localhost:8080/api/axis/ where user in {ScreenName, UserID} and the portal authentication type must be set either to screen name or user ID, see: https://dev.liferay.com/develop/tutorials/-/knowledge_base/6-2/service-security-layers");
         if (companyId==null)
             throw new ConfigurationException("companyId is empty");
 
