@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="urn:http.service.expando.portlet.liferay.com" xmlns:intf="urn:http.service.expando.portlet.liferay.com" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns1="http://model.expando.portlet.liferay.com" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:http.service.expando.portlet.liferay.com">
+	<!--WSDL created by Apache Axis version: 1.4Built on Apr 22, 2006 (06:55:48 PDT)-->
+	<wsdl:types>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://model.expando.portlet.liferay.com">
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="ExpandoValueSoap">
+				<sequence>
+					<element name="classNameId" type="xsd:long"/>
+					<element name="classPK" type="xsd:long"/>
+					<element name="columnId" type="xsd:long"/>
+					<element name="companyId" type="xsd:long"/>
+					<element name="data" nillable="true" type="soapenc:string"/>
+					<element name="primaryKey" type="xsd:long"/>
+					<element name="rowId" type="xsd:long"/>
+					<element name="tableId" type="xsd:long"/>
+					<element name="valueId" type="xsd:long"/>
+				</sequence>
+			</complexType>
+		</schema>
+	</wsdl:types>
+	<wsdl:message name="addValueResponse1">
+		<wsdl:part name="addValueReturn" type="tns1:ExpandoValueSoap"/>
+	</wsdl:message>
+	<wsdl:message name="addValueRequest1">
+		<wsdl:part name="companyId" type="xsd:long"/>
+		<wsdl:part name="className" type="xsd:string"/>
+		<wsdl:part name="tableName" type="xsd:string"/>
+		<wsdl:part name="columnName" type="xsd:string"/>
+		<wsdl:part name="classPK" type="xsd:long"/>
+		<wsdl:part name="data" type="xsd:string"/>
+	</wsdl:message>
+	<wsdl:message name="addValueResponse">
+		<wsdl:part name="addValueReturn" type="tns1:ExpandoValueSoap"/>
+	</wsdl:message>
+	<wsdl:message name="addValueRequest">
+		<wsdl:part name="companyId" type="xsd:long"/>
+		<wsdl:part name="className" type="xsd:string"/>
+		<wsdl:part name="tableName" type="xsd:string"/>
+		<wsdl:part name="columnName" type="xsd:string"/>
+		<wsdl:part name="classPK" type="xsd:long"/>
+		<wsdl:part name="data" type="xsd:anyType"/>
+	</wsdl:message>
+	<wsdl:message name="getJSONDataRequest">
+		<wsdl:part name="companyId" type="xsd:long"/>
+		<wsdl:part name="className" type="xsd:string"/>
+		<wsdl:part name="tableName" type="xsd:string"/>
+		<wsdl:part name="columnName" type="xsd:string"/>
+		<wsdl:part name="classPK" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="getJSONDataResponse">
+		<wsdl:part name="getJSONDataReturn" type="xsd:string"/>
+	</wsdl:message>
+	<wsdl:portType name="ExpandoValueServiceSoap">
+		<wsdl:operation name="addValue" parameterOrder="companyId className tableName columnName classPK data">
+			<wsdl:input message="impl:addValueRequest" name="addValueRequest"/>
+			<wsdl:output message="impl:addValueResponse" name="addValueResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="addValue" parameterOrder="companyId className tableName columnName classPK data">
+			<wsdl:input message="impl:addValueRequest1" name="addValueRequest1"/>
+			<wsdl:output message="impl:addValueResponse1" name="addValueResponse1"/>
+		</wsdl:operation>
+		<wsdl:operation name="getJSONData" parameterOrder="companyId className tableName columnName classPK">
+			<wsdl:input message="impl:getJSONDataRequest" name="getJSONDataRequest"/>
+			<wsdl:output message="impl:getJSONDataResponse" name="getJSONDataResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="Portlet_Expando_ExpandoValueServiceSoapBinding" type="impl:ExpandoValueServiceSoap">
+		<wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="addValue">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="addValueRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.expando.portlet.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="addValueResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.expando.portlet.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="addValue">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="addValueRequest1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.expando.portlet.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="addValueResponse1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.expando.portlet.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getJSONData">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getJSONDataRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.expando.portlet.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getJSONDataResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.expando.portlet.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="ExpandoValueServiceSoapService">
+		<wsdl:port binding="impl:Portlet_Expando_ExpandoValueServiceSoapBinding" name="Portlet_Expando_ExpandoValueService">
+			<wsdlsoap:address location="http://localhost:8080/api/axis/Portlet_Expando_ExpandoValueService"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,805 @@
+<?xml version="1.0"?>
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="urn:http.service.portal.liferay.com" xmlns:intf="urn:http.service.portal.liferay.com" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns1="http://model.portal.liferay.com" xmlns:tns10="http://permission.security.portal.liferay.com" xmlns:tns11="http://util.kernel.portal.liferay.com" xmlns:tns2="http://service.portal.liferay.com" xmlns:tns3="http://portlet.kernel.portal.liferay.com" xmlns:tns4="http://util.java" xmlns:tns5="http://http.servlet.javax" xmlns:tns6="http://theme.portal.liferay.com" xmlns:tns7="http://model.mobiledevicerules.portlet.liferay.com" xmlns:tns8="http://portlet.javax" xmlns:tns9="http://device.mobile.kernel.portal.liferay.com" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:http.service.portal.liferay.com">
+	<!--WSDL created by Apache Axis version: 1.4Built on Apr 22, 2006 (06:55:48 PDT)-->
+	<wsdl:types>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:http.service.portal.liferay.com">
+			<import namespace="http://permission.security.portal.liferay.com"/>
+			<import namespace="http://portlet.kernel.portal.liferay.com"/>
+			<import namespace="http://util.kernel.portal.liferay.com"/>
+			<import namespace="http://service.portal.liferay.com"/>
+			<import namespace="http://http.servlet.javax"/>
+			<import namespace="http://model.portal.liferay.com"/>
+			<import namespace="http://portlet.javax"/>
+			<import namespace="http://device.mobile.kernel.portal.liferay.com"/>
+			<import namespace="http://util.java"/>
+			<import namespace="http://model.mobiledevicerules.portlet.liferay.com"/>
+			<import namespace="http://xml.apache.org/xml-soap"/>
+			<import namespace="http://theme.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="ArrayOf_xsd_string">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<attribute ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+			<complexType name="ArrayOf_xsd_long">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:long[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+			<complexType name="ArrayOf_xsd_anyType">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+			<complexType name="ArrayOf_tns2_RoleSoap">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:RoleSoap[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+			<complexType name="ArrayOf_tns2_GroupSoap">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:GroupSoap[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+		</schema>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://model.portal.liferay.com">
+			<import namespace="http://permission.security.portal.liferay.com"/>
+			<import namespace="http://portlet.kernel.portal.liferay.com"/>
+			<import namespace="http://util.kernel.portal.liferay.com"/>
+			<import namespace="http://service.portal.liferay.com"/>
+			<import namespace="http://http.servlet.javax"/>
+			<import namespace="urn:http.service.portal.liferay.com"/>
+			<import namespace="http://portlet.javax"/>
+			<import namespace="http://device.mobile.kernel.portal.liferay.com"/>
+			<import namespace="http://util.java"/>
+			<import namespace="http://model.mobiledevicerules.portlet.liferay.com"/>
+			<import namespace="http://xml.apache.org/xml-soap"/>
+			<import namespace="http://theme.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="RoleSoap">
+				<sequence>
+					<element name="classNameId" type="xsd:long"/>
+					<element name="classPK" type="xsd:long"/>
+					<element name="companyId" type="xsd:long"/>
+					<element name="createDate" nillable="true" type="xsd:dateTime"/>
+					<element name="description" nillable="true" type="soapenc:string"/>
+					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
+					<element name="name" nillable="true" type="soapenc:string"/>
+					<element name="primaryKey" type="xsd:long"/>
+					<element name="roleId" type="xsd:long"/>
+					<element name="subtype" nillable="true" type="soapenc:string"/>
+					<element name="title" nillable="true" type="soapenc:string"/>
+					<element name="type" type="xsd:int"/>
+					<element name="userId" type="xsd:long"/>
+					<element name="userName" nillable="true" type="soapenc:string"/>
+					<element name="uuid" nillable="true" type="soapenc:string"/>
+				</sequence>
+			</complexType>
+			<complexType name="PortletPreferencesIds">
+				<sequence>
+					<element name="companyId" type="xsd:long"/>
+					<element name="ownerId" type="xsd:long"/>
+					<element name="ownerType" type="xsd:int"/>
+					<element name="plid" type="xsd:long"/>
+					<element name="portletId" nillable="true" type="soapenc:string"/>
+				</sequence>
+			</complexType>
+			<complexType name="GroupSoap">
+				<sequence>
+					<element name="active" type="xsd:boolean"/>
+					<element name="classNameId" type="xsd:long"/>
+					<element name="classPK" type="xsd:long"/>
+					<element name="companyId" type="xsd:long"/>
+					<element name="creatorUserId" type="xsd:long"/>
+					<element name="description" nillable="true" type="soapenc:string"/>
+					<element name="friendlyURL" nillable="true" type="soapenc:string"/>
+					<element name="groupId" type="xsd:long"/>
+					<element name="liveGroupId" type="xsd:long"/>
+					<element name="manualMembership" type="xsd:boolean"/>
+					<element name="membershipRestriction" type="xsd:int"/>
+					<element name="name" nillable="true" type="soapenc:string"/>
+					<element name="parentGroupId" type="xsd:long"/>
+					<element name="primaryKey" type="xsd:long"/>
+					<element name="remoteStagingGroupCount" type="xsd:int"/>
+					<element name="site" type="xsd:boolean"/>
+					<element name="treePath" nillable="true" type="soapenc:string"/>
+					<element name="type" type="xsd:int"/>
+					<element name="typeSettings" nillable="true" type="soapenc:string"/>
+					<element name="uuid" nillable="true" type="soapenc:string"/>
+				</sequence>
+			</complexType>
+		</schema>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://xml.apache.org/xml-soap">
+			<import namespace="http://permission.security.portal.liferay.com"/>
+			<import namespace="http://portlet.kernel.portal.liferay.com"/>
+			<import namespace="http://util.kernel.portal.liferay.com"/>
+			<import namespace="http://service.portal.liferay.com"/>
+			<import namespace="http://http.servlet.javax"/>
+			<import namespace="urn:http.service.portal.liferay.com"/>
+			<import namespace="http://model.portal.liferay.com"/>
+			<import namespace="http://portlet.javax"/>
+			<import namespace="http://device.mobile.kernel.portal.liferay.com"/>
+			<import namespace="http://util.java"/>
+			<import namespace="http://model.mobiledevicerules.portlet.liferay.com"/>
+			<import namespace="http://theme.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="mapItem">
+				<sequence>
+					<element name="key" nillable="true" type="xsd:anyType"/>
+					<element name="value" nillable="true" type="xsd:anyType"/>
+				</sequence>
+			</complexType>
+			<complexType name="Map">
+				<sequence>
+					<element maxOccurs="unbounded" minOccurs="0" name="item" type="apachesoap:mapItem"/>
+				</sequence>
+			</complexType>
+			<complexType name="Vector">
+				<sequence>
+					<element maxOccurs="unbounded" minOccurs="0" name="item" type="xsd:anyType"/>
+				</sequence>
+			</complexType>
+		</schema>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://util.kernel.portal.liferay.com">
+			<import namespace="http://permission.security.portal.liferay.com"/>
+			<import namespace="http://portlet.kernel.portal.liferay.com"/>
+			<import namespace="http://service.portal.liferay.com"/>
+			<import namespace="http://http.servlet.javax"/>
+			<import namespace="urn:http.service.portal.liferay.com"/>
+			<import namespace="http://model.portal.liferay.com"/>
+			<import namespace="http://portlet.javax"/>
+			<import namespace="http://device.mobile.kernel.portal.liferay.com"/>
+			<import namespace="http://util.java"/>
+			<import namespace="http://model.mobiledevicerules.portlet.liferay.com"/>
+			<import namespace="http://xml.apache.org/xml-soap"/>
+			<import namespace="http://theme.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="StringBundler">
+				<sequence>
+					<element name="index" type="xsd:int"/>
+				</sequence>
+			</complexType>
+		</schema>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://theme.portal.liferay.com">
+			<import namespace="http://permission.security.portal.liferay.com"/>
+			<import namespace="http://portlet.kernel.portal.liferay.com"/>
+			<import namespace="http://util.kernel.portal.liferay.com"/>
+			<import namespace="http://service.portal.liferay.com"/>
+			<import namespace="http://http.servlet.javax"/>
+			<import namespace="urn:http.service.portal.liferay.com"/>
+			<import namespace="http://model.portal.liferay.com"/>
+			<import namespace="http://portlet.javax"/>
+			<import namespace="http://device.mobile.kernel.portal.liferay.com"/>
+			<import namespace="http://util.java"/>
+			<import namespace="http://model.mobiledevicerules.portlet.liferay.com"/>
+			<import namespace="http://xml.apache.org/xml-soap"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="PortletDisplay">
+				<sequence>
+					<element name="URLBack" nillable="true" type="soapenc:string"/>
+					<element name="URLClose" nillable="true" type="soapenc:string"/>
+					<element name="URLConfiguration" nillable="true" type="soapenc:string"/>
+					<element name="URLConfigurationJS" nillable="true" type="soapenc:string"/>
+					<element name="URLEdit" nillable="true" type="soapenc:string"/>
+					<element name="URLEditDefaults" nillable="true" type="soapenc:string"/>
+					<element name="URLEditGuest" nillable="true" type="soapenc:string"/>
+					<element name="URLExportImport" nillable="true" type="soapenc:string"/>
+					<element name="URLHelp" nillable="true" type="soapenc:string"/>
+					<element name="URLMax" nillable="true" type="soapenc:string"/>
+					<element name="URLMin" nillable="true" type="soapenc:string"/>
+					<element name="URLPortlet" nillable="true" type="soapenc:string"/>
+					<element name="URLPortletCss" nillable="true" type="soapenc:string"/>
+					<element name="URLPrint" nillable="true" type="soapenc:string"/>
+					<element name="URLRefresh" nillable="true" type="soapenc:string"/>
+					<element name="access" type="xsd:boolean"/>
+					<element name="active" type="xsd:boolean"/>
+					<element name="columnCount" type="xsd:int"/>
+					<element name="columnId" nillable="true" type="soapenc:string"/>
+					<element name="columnPos" type="xsd:int"/>
+					<element name="content" nillable="true" type="tns11:StringBundler"/>
+					<element name="controlPanelCategory" nillable="true" type="soapenc:string"/>
+					<element name="customCSSClassName" nillable="true" type="soapenc:string"/>
+					<element name="description" nillable="true" type="soapenc:string"/>
+					<element name="focused" type="xsd:boolean"/>
+					<element name="id" nillable="true" type="soapenc:string"/>
+					<element name="instanceId" nillable="true" type="soapenc:string"/>
+					<element name="modeAbout" type="xsd:boolean"/>
+					<element name="modeConfig" type="xsd:boolean"/>
+					<element name="modeEdit" type="xsd:boolean"/>
+					<element name="modeEditDefaults" type="xsd:boolean"/>
+					<element name="modeEditGuest" type="xsd:boolean"/>
+					<element name="modeHelp" type="xsd:boolean"/>
+					<element name="modePreview" type="xsd:boolean"/>
+					<element name="modePrint" type="xsd:boolean"/>
+					<element name="modeView" type="xsd:boolean"/>
+					<element name="namespace" nillable="true" type="soapenc:string"/>
+					<element name="portletName" nillable="true" type="soapenc:string"/>
+					<element name="portletSetup" nillable="true" type="xsd:anyType"/>
+					<element name="resourcePK" nillable="true" type="soapenc:string"/>
+					<element name="restoreCurrentView" type="xsd:boolean"/>
+					<element name="rootPortletId" nillable="true" type="soapenc:string"/>
+					<element name="showBackIcon" type="xsd:boolean"/>
+					<element name="showCloseIcon" type="xsd:boolean"/>
+					<element name="showConfigurationIcon" type="xsd:boolean"/>
+					<element name="showEditDefaultsIcon" type="xsd:boolean"/>
+					<element name="showEditGuestIcon" type="xsd:boolean"/>
+					<element name="showEditIcon" type="xsd:boolean"/>
+					<element name="showExportImportIcon" type="xsd:boolean"/>
+					<element name="showHelpIcon" type="xsd:boolean"/>
+					<element name="showMaxIcon" type="xsd:boolean"/>
+					<element name="showMinIcon" type="xsd:boolean"/>
+					<element name="showMoveIcon" type="xsd:boolean"/>
+					<element name="showPortletCssIcon" type="xsd:boolean"/>
+					<element name="showPortletIcon" type="xsd:boolean"/>
+					<element name="showPrintIcon" type="xsd:boolean"/>
+					<element name="showRefreshIcon" type="xsd:boolean"/>
+					<element name="stateExclusive" type="xsd:boolean"/>
+					<element name="stateMax" type="xsd:boolean"/>
+					<element name="stateMin" type="xsd:boolean"/>
+					<element name="stateNormal" type="xsd:boolean"/>
+					<element name="statePopUp" type="xsd:boolean"/>
+					<element name="themeDisplay" nillable="true" type="tns6:ThemeDisplay"/>
+					<element name="title" nillable="true" type="soapenc:string"/>
+					<element name="webDAVEnabled" type="xsd:boolean"/>
+				</sequence>
+			</complexType>
+			<complexType name="ThemeDisplay">
+				<sequence>
+					<element name="CDNBaseURL" nillable="true" type="soapenc:string"/>
+					<element name="CDNDynamicResourcesHost" nillable="true" type="soapenc:string"/>
+					<element name="CDNHost" nillable="true" type="soapenc:string"/>
+					<element name="MDRRuleGroupInstance" nillable="true" type="xsd:anyType"/>
+					<element name="URLAddContent" nillable="true" type="soapenc:string"/>
+					<element name="URLControlPanel" nillable="true" type="soapenc:string"/>
+					<element name="URLCurrent" nillable="true" type="soapenc:string"/>
+					<element name="URLHome" nillable="true" type="soapenc:string"/>
+					<element name="URLLayoutTemplates" nillable="true" type="soapenc:string"/>
+					<element name="URLManageSiteMemberships" nillable="true" type="xsd:anyType"/>
+					<element name="URLMyAccount" nillable="true" type="xsd:anyType"/>
+					<element name="URLPageSettings" nillable="true" type="xsd:anyType"/>
+					<element name="URLPortal" nillable="true" type="soapenc:string"/>
+					<element name="URLPublishToLive" nillable="true" type="xsd:anyType"/>
+					<element name="URLSignIn" nillable="true" type="soapenc:string"/>
+					<element name="URLSignOut" nillable="true" type="soapenc:string"/>
+					<element name="URLSiteAdministration" nillable="true" type="soapenc:string"/>
+					<element name="URLSiteContent" nillable="true" type="soapenc:string"/>
+					<element name="URLSiteMapSettings" nillable="true" type="xsd:anyType"/>
+					<element name="URLSiteSettings" nillable="true" type="xsd:anyType"/>
+					<element name="URLUpdateManager" nillable="true" type="xsd:anyType"/>
+					<element name="account" nillable="true" type="xsd:anyType"/>
+					<element name="addSessionIdToURL" type="xsd:boolean"/>
+					<element name="ajax" type="xsd:boolean"/>
+					<element name="colorScheme" nillable="true" type="xsd:anyType"/>
+					<element name="colorSchemeId" nillable="true" type="soapenc:string"/>
+					<element name="company" nillable="true" type="xsd:anyType"/>
+					<element name="companyGroupId" type="xsd:long"/>
+					<element name="companyId" type="xsd:long"/>
+					<element name="companyLogo" nillable="true" type="soapenc:string"/>
+					<element name="companyLogoHeight" type="xsd:int"/>
+					<element name="companyLogoWidth" type="xsd:int"/>
+					<element name="contact" nillable="true" type="xsd:anyType"/>
+					<element name="controlPanelCategory" nillable="true" type="soapenc:string"/>
+					<element name="defaultUser" nillable="true" type="xsd:anyType"/>
+					<element name="defaultUserId" type="xsd:long"/>
+					<element name="device" nillable="true" type="xsd:anyType"/>
+					<element name="doAsGroupId" type="xsd:long"/>
+					<element name="doAsUserId" nillable="true" type="soapenc:string"/>
+					<element name="doAsUserLanguageId" nillable="true" type="soapenc:string"/>
+					<element name="facebook" type="xsd:boolean"/>
+					<element name="facebookCanvasPageURL" nillable="true" type="soapenc:string"/>
+					<element name="freeformLayout" type="xsd:boolean"/>
+					<element name="i18n" type="xsd:boolean"/>
+					<element name="i18nLanguageId" nillable="true" type="soapenc:string"/>
+					<element name="i18nPath" nillable="true" type="soapenc:string"/>
+					<element name="impersonated" type="xsd:boolean"/>
+					<element name="includePortletCssJs" type="xsd:boolean"/>
+					<element name="isolated" type="xsd:boolean"/>
+					<element name="languageId" nillable="true" type="soapenc:string"/>
+					<element name="layout" nillable="true" type="xsd:anyType"/>
+					<element name="layoutSet" nillable="true" type="xsd:anyType"/>
+					<element name="layoutSetLogo" nillable="true" type="soapenc:string"/>
+					<element name="layoutTypePortlet" nillable="true" type="xsd:anyType"/>
+					<element name="layouts" nillable="true" type="impl:ArrayOf_xsd_anyType"/>
+					<element name="lifecycle" nillable="true" type="soapenc:string"/>
+					<element name="lifecycleAction" type="xsd:boolean"/>
+					<element name="lifecycleEvent" type="xsd:boolean"/>
+					<element name="lifecycleRender" type="xsd:boolean"/>
+					<element name="lifecycleResource" type="xsd:boolean"/>
+					<element name="locale" nillable="true" type="xsd:anyType"/>
+					<element name="parentGroup" nillable="true" type="xsd:anyType"/>
+					<element name="parentGroupId" type="xsd:long"/>
+					<element name="parentGroupName" nillable="true" type="soapenc:string"/>
+					<element name="pathApplet" nillable="true" type="soapenc:string"/>
+					<element name="pathCms" nillable="true" type="soapenc:string"/>
+					<element name="pathColorSchemeImages" nillable="true" type="soapenc:string"/>
+					<element name="pathContext" nillable="true" type="soapenc:string"/>
+					<element name="pathFlash" nillable="true" type="soapenc:string"/>
+					<element name="pathFriendlyURLPrivateGroup" nillable="true" type="soapenc:string"/>
+					<element name="pathFriendlyURLPrivateUser" nillable="true" type="soapenc:string"/>
+					<element name="pathFriendlyURLPublic" nillable="true" type="soapenc:string"/>
+					<element name="pathImage" nillable="true" type="soapenc:string"/>
+					<element name="pathJavaScript" nillable="true" type="soapenc:string"/>
+					<element name="pathMain" nillable="true" type="soapenc:string"/>
+					<element name="pathSound" nillable="true" type="soapenc:string"/>
+					<element name="pathThemeCss" nillable="true" type="soapenc:string"/>
+					<element name="pathThemeImage" nillable="true" type="soapenc:string"/>
+					<element name="pathThemeImages" nillable="true" type="soapenc:string"/>
+					<element name="pathThemeJavaScript" nillable="true" type="soapenc:string"/>
+					<element name="pathThemeRoot" nillable="true" type="soapenc:string"/>
+					<element name="pathThemeTemplates" nillable="true" type="soapenc:string"/>
+					<element name="permissionChecker" nillable="true" type="xsd:anyType"/>
+					<element name="plid" type="xsd:long"/>
+					<element name="portalURL" nillable="true" type="soapenc:string"/>
+					<element name="portletDisplay" nillable="true" type="tns6:PortletDisplay"/>
+					<element name="portletGroupId" type="xsd:long"/>
+					<element name="ppid" nillable="true" type="soapenc:string"/>
+					<element name="realCompanyLogo" nillable="true" type="soapenc:string"/>
+					<element name="realCompanyLogoHeight" type="xsd:int"/>
+					<element name="realCompanyLogoWidth" type="xsd:int"/>
+					<element name="realUser" nillable="true" type="xsd:anyType"/>
+					<element name="realUserId" type="xsd:long"/>
+					<element name="refererGroupId" type="xsd:long"/>
+					<element name="refererPlid" type="xsd:long"/>
+					<element name="request" nillable="true" type="xsd:anyType"/>
+					<element name="scopeGroup" nillable="true" type="xsd:anyType"/>
+					<element name="scopeGroupId" type="xsd:long"/>
+					<element name="scopeGroupIdOrLiveGroupId" type="xsd:long"/>
+					<element name="scopeGroupName" nillable="true" type="soapenc:string"/>
+					<element name="scopeLayout" nillable="true" type="xsd:anyType"/>
+					<element name="secure" type="xsd:boolean"/>
+					<element name="serverName" nillable="true" type="soapenc:string"/>
+					<element name="serverPort" type="xsd:int"/>
+					<element name="sessionId" nillable="true" type="soapenc:string"/>
+					<element name="showAddContentIcon" type="xsd:boolean"/>
+					<element name="showAddContentIconPermission" type="xsd:boolean"/>
+					<element name="showControlPanelIcon" type="xsd:boolean"/>
+					<element name="showHomeIcon" type="xsd:boolean"/>
+					<element name="showLayoutTemplatesIcon" type="xsd:boolean"/>
+					<element name="showManageSiteMembershipsIcon" type="xsd:boolean"/>
+					<element name="showMyAccountIcon" type="xsd:boolean"/>
+					<element name="showPageCustomizationIcon" type="xsd:boolean"/>
+					<element name="showPageSettingsIcon" type="xsd:boolean"/>
+					<element name="showPortalIcon" type="xsd:boolean"/>
+					<element name="showSignInIcon" type="xsd:boolean"/>
+					<element name="showSignOutIcon" type="xsd:boolean"/>
+					<element name="showSiteAdministrationIcon" type="xsd:boolean"/>
+					<element name="showSiteContentIcon" type="xsd:boolean"/>
+					<element name="showSiteMapSettingsIcon" type="xsd:boolean"/>
+					<element name="showSiteSettingsIcon" type="xsd:boolean"/>
+					<element name="showStagingIcon" type="xsd:boolean"/>
+					<element name="signedIn" type="xsd:boolean"/>
+					<element name="siteDefaultLocale" nillable="true" type="xsd:anyType"/>
+					<element name="siteGroup" nillable="true" type="xsd:anyType"/>
+					<element name="siteGroupId" type="xsd:long"/>
+					<element name="siteGroupIdOrLiveGroupId" type="xsd:long"/>
+					<element name="siteGroupName" nillable="true" type="soapenc:string"/>
+					<element name="stateExclusive" type="xsd:boolean"/>
+					<element name="stateMaximized" type="xsd:boolean"/>
+					<element name="statePopUp" type="xsd:boolean"/>
+					<element name="theme" nillable="true" type="xsd:anyType"/>
+					<element name="themeCssFastLoad" type="xsd:boolean"/>
+					<element name="themeId" nillable="true" type="soapenc:string"/>
+					<element name="themeImagesFastLoad" type="xsd:boolean"/>
+					<element name="themeJsBarebone" type="xsd:boolean"/>
+					<element name="themeJsFastLoad" type="xsd:boolean"/>
+					<element name="themeSettings" nillable="true" type="xsd:anyType"/>
+					<element name="tilesContent" nillable="true" type="soapenc:string"/>
+					<element name="tilesSelectable" type="xsd:boolean"/>
+					<element name="tilesTitle" nillable="true" type="soapenc:string"/>
+					<element name="timeZone" nillable="true" type="xsd:anyType"/>
+					<element name="unfilteredLayouts" nillable="true" type="impl:ArrayOf_xsd_anyType"/>
+					<element name="user" nillable="true" type="xsd:anyType"/>
+					<element name="userId" type="xsd:long"/>
+					<element name="wapTheme" type="xsd:boolean"/>
+					<element name="widget" type="xsd:boolean"/>
+				</sequence>
+			</complexType>
+		</schema>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://service.portal.liferay.com">
+			<import namespace="http://permission.security.portal.liferay.com"/>
+			<import namespace="http://portlet.kernel.portal.liferay.com"/>
+			<import namespace="http://util.kernel.portal.liferay.com"/>
+			<import namespace="http://http.servlet.javax"/>
+			<import namespace="urn:http.service.portal.liferay.com"/>
+			<import namespace="http://model.portal.liferay.com"/>
+			<import namespace="http://portlet.javax"/>
+			<import namespace="http://device.mobile.kernel.portal.liferay.com"/>
+			<import namespace="http://util.java"/>
+			<import namespace="http://model.mobiledevicerules.portlet.liferay.com"/>
+			<import namespace="http://xml.apache.org/xml-soap"/>
+			<import namespace="http://theme.portal.liferay.com"/>
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="ServiceContext">
+				<sequence>
+					<element name="addCommunityPermissions" type="xsd:boolean"/>
+					<element name="addGroupPermissions" type="xsd:boolean"/>
+					<element name="addGuestPermissions" type="xsd:boolean"/>
+					<element name="assetCategoryIds" nillable="true" type="impl:ArrayOf_xsd_long"/>
+					<element name="assetEntryVisible" type="xsd:boolean"/>
+					<element name="assetLinkEntryIds" nillable="true" type="impl:ArrayOf_xsd_long"/>
+					<element name="assetTagNames" nillable="true" type="impl:ArrayOf_xsd_string"/>
+					<element name="attributes" nillable="true" type="apachesoap:Map"/>
+					<element name="command" nillable="true" type="soapenc:string"/>
+					<element name="commandAdd" type="xsd:boolean"/>
+					<element name="commandUpdate" type="xsd:boolean"/>
+					<element name="communityPermissions" nillable="true" type="impl:ArrayOf_xsd_string"/>
+					<element name="companyId" type="xsd:long"/>
+					<element name="createDate" nillable="true" type="xsd:dateTime"/>
+					<element name="currentURL" nillable="true" type="soapenc:string"/>
+					<element name="deriveDefaultPermissions" type="xsd:boolean"/>
+					<element name="expandoBridgeAttributes" nillable="true" type="apachesoap:Map"/>
+					<element name="failOnPortalException" type="xsd:boolean"/>
+					<element name="formDate" nillable="true" type="xsd:dateTime"/>
+					<element name="groupPermissions" nillable="true" type="impl:ArrayOf_xsd_string"/>
+					<element name="guestOrUserId" type="xsd:long"/>
+					<element name="guestPermissions" nillable="true" type="impl:ArrayOf_xsd_string"/>
+					<element name="headers" nillable="true" type="apachesoap:Map"/>
+					<element name="indexingEnabled" type="xsd:boolean"/>
+					<element name="languageId" nillable="true" type="soapenc:string"/>
+					<element name="layoutFullURL" nillable="true" type="soapenc:string"/>
+					<element name="layoutURL" nillable="true" type="soapenc:string"/>
+					<element name="liferayPortletRequest" nillable="true" type="xsd:anyType"/>
+					<element name="liferayPortletResponse" nillable="true" type="xsd:anyType"/>
+					<element name="locale" nillable="true" type="xsd:anyType"/>
+					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
+					<element name="pathFriendlyURLPrivateGroup" nillable="true" type="soapenc:string"/>
+					<element name="pathFriendlyURLPrivateUser" nillable="true" type="soapenc:string"/>
+					<element name="pathFriendlyURLPublic" nillable="true" type="soapenc:string"/>
+					<element name="pathMain" nillable="true" type="soapenc:string"/>
+					<element name="plid" type="xsd:long"/>
+					<element name="portalURL" nillable="true" type="soapenc:string"/>
+					<element name="portletId" nillable="true" type="soapenc:string"/>
+					<element name="portletPreferencesIds" nillable="true" type="tns1:PortletPreferencesIds"/>
+					<element name="remoteAddr" nillable="true" type="soapenc:string"/>
+					<element name="remoteHost" nillable="true" type="soapenc:string"/>
+					<element name="request" nillable="true" type="xsd:anyType"/>
+					<element name="response" nillable="true" type="xsd:anyType"/>
+					<element name="rootPortletId" nillable="true" type="soapenc:string"/>
+					<element name="scopeGroup" nillable="true" type="xsd:anyType"/>
+					<element name="scopeGroupId" type="xsd:long"/>
+					<element name="signedIn" type="xsd:boolean"/>
+					<element name="themeDisplay" nillable="true" type="tns6:ThemeDisplay"/>
+					<element name="timeZone" nillable="true" type="xsd:anyType"/>
+					<element name="userAgent" nillable="true" type="soapenc:string"/>
+					<element name="userDisplayURL" nillable="true" type="soapenc:string"/>
+					<element name="userId" type="xsd:long"/>
+					<element name="uuid" nillable="true" type="soapenc:string"/>
+					<element name="workflowAction" type="xsd:int"/>
+				</sequence>
+			</complexType>
+		</schema>
+	</wsdl:types>
+	<wsdl:message name="updateRoleRequest">
+		<wsdl:part name="roleId" type="xsd:long"/>
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="titleMapLanguageIds" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="titleMapValues" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="descriptionMapLanguageIds" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="descriptionMapValues" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="subtype" type="xsd:string"/>
+		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
+	</wsdl:message>
+	<wsdl:message name="hasUserRolesRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="companyId" type="xsd:long"/>
+		<wsdl:part name="names" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="inherited" type="xsd:boolean"/>
+	</wsdl:message>
+	<wsdl:message name="getUserGroupRolesRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="groupId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="deleteRoleRequest">
+		<wsdl:part name="roleId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="getGroupRolesRequest">
+		<wsdl:part name="groupId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="getUserRolesResponse">
+		<wsdl:part name="getUserRolesReturn" type="impl:ArrayOf_tns2_RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="hasUserRoleRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="companyId" type="xsd:long"/>
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="inherited" type="xsd:boolean"/>
+	</wsdl:message>
+	<wsdl:message name="getUserRelatedRolesRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="groups" type="impl:ArrayOf_tns2_GroupSoap"/>
+	</wsdl:message>
+	<wsdl:message name="updateRoleResponse">
+		<wsdl:part name="updateRoleReturn" type="tns1:RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="getRoleResponse1">
+		<wsdl:part name="getRoleReturn" type="tns1:RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="addUserRolesResponse"/>
+	<wsdl:message name="getUserRolesRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="addRoleRequest1">
+		<wsdl:part name="className" type="xsd:string"/>
+		<wsdl:part name="classPK" type="xsd:long"/>
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="titleMapLanguageIds" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="titleMapValues" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="descriptionMapLanguageIds" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="descriptionMapValues" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="type" type="xsd:int"/>
+		<wsdl:part name="subtype" type="xsd:string"/>
+		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
+	</wsdl:message>
+	<wsdl:message name="hasUserRoleResponse">
+		<wsdl:part name="hasUserRoleReturn" type="xsd:boolean"/>
+	</wsdl:message>
+	<wsdl:message name="deleteRoleResponse"/>
+	<wsdl:message name="getRoleRequest">
+		<wsdl:part name="roleId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="getUserRelatedRolesResponse">
+		<wsdl:part name="getUserRelatedRolesReturn" type="impl:ArrayOf_tns2_RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="addRoleRequest">
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="titleMapLanguageIds" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="titleMapValues" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="descriptionMapLanguageIds" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="descriptionMapValues" type="impl:ArrayOf_xsd_string"/>
+		<wsdl:part name="type" type="xsd:int"/>
+	</wsdl:message>
+	<wsdl:message name="getGroupRolesResponse">
+		<wsdl:part name="getGroupRolesReturn" type="impl:ArrayOf_tns2_RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="getUserGroupGroupRolesRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="groupId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="hasUserRolesResponse">
+		<wsdl:part name="hasUserRolesReturn" type="xsd:boolean"/>
+	</wsdl:message>
+	<wsdl:message name="getUserGroupRolesResponse">
+		<wsdl:part name="getUserGroupRolesReturn" type="impl:ArrayOf_tns2_RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="addRoleResponse1">
+		<wsdl:part name="addRoleReturn" type="tns1:RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="addRoleResponse">
+		<wsdl:part name="addRoleReturn" type="tns1:RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="unsetUserRolesResponse"/>
+	<wsdl:message name="getUserGroupGroupRolesResponse">
+		<wsdl:part name="getUserGroupGroupRolesReturn" type="impl:ArrayOf_tns2_RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="getRoleResponse">
+		<wsdl:part name="getRoleReturn" type="tns1:RoleSoap"/>
+	</wsdl:message>
+	<wsdl:message name="addUserRolesRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="roleIds" type="impl:ArrayOf_xsd_long"/>
+	</wsdl:message>
+	<wsdl:message name="unsetUserRolesRequest">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="roleIds" type="impl:ArrayOf_xsd_long"/>
+	</wsdl:message>
+	<wsdl:message name="getRoleRequest1">
+		<wsdl:part name="companyId" type="xsd:long"/>
+		<wsdl:part name="name" type="xsd:string"/>
+	</wsdl:message>
+	<wsdl:portType name="RoleServiceSoap">
+		<wsdl:operation name="addRole" parameterOrder="name titleMapLanguageIds titleMapValues descriptionMapLanguageIds descriptionMapValues type">
+			<wsdl:input message="impl:addRoleRequest" name="addRoleRequest"/>
+			<wsdl:output message="impl:addRoleResponse" name="addRoleResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="addRole" parameterOrder="className classPK name titleMapLanguageIds titleMapValues descriptionMapLanguageIds descriptionMapValues type subtype serviceContext">
+			<wsdl:input message="impl:addRoleRequest1" name="addRoleRequest1"/>
+			<wsdl:output message="impl:addRoleResponse1" name="addRoleResponse1"/>
+		</wsdl:operation>
+		<wsdl:operation name="addUserRoles" parameterOrder="userId roleIds">
+			<wsdl:input message="impl:addUserRolesRequest" name="addUserRolesRequest"/>
+			<wsdl:output message="impl:addUserRolesResponse" name="addUserRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="deleteRole" parameterOrder="roleId">
+			<wsdl:input message="impl:deleteRoleRequest" name="deleteRoleRequest"/>
+			<wsdl:output message="impl:deleteRoleResponse" name="deleteRoleResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getGroupRoles" parameterOrder="groupId">
+			<wsdl:input message="impl:getGroupRolesRequest" name="getGroupRolesRequest"/>
+			<wsdl:output message="impl:getGroupRolesResponse" name="getGroupRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getRole" parameterOrder="roleId">
+			<wsdl:input message="impl:getRoleRequest" name="getRoleRequest"/>
+			<wsdl:output message="impl:getRoleResponse" name="getRoleResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getRole" parameterOrder="companyId name">
+			<wsdl:input message="impl:getRoleRequest1" name="getRoleRequest1"/>
+			<wsdl:output message="impl:getRoleResponse1" name="getRoleResponse1"/>
+		</wsdl:operation>
+		<wsdl:operation name="getUserGroupGroupRoles" parameterOrder="userId groupId">
+			<wsdl:input message="impl:getUserGroupGroupRolesRequest" name="getUserGroupGroupRolesRequest"/>
+			<wsdl:output message="impl:getUserGroupGroupRolesResponse" name="getUserGroupGroupRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getUserGroupRoles" parameterOrder="userId groupId">
+			<wsdl:input message="impl:getUserGroupRolesRequest" name="getUserGroupRolesRequest"/>
+			<wsdl:output message="impl:getUserGroupRolesResponse" name="getUserGroupRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getUserRelatedRoles" parameterOrder="userId groups">
+			<wsdl:input message="impl:getUserRelatedRolesRequest" name="getUserRelatedRolesRequest"/>
+			<wsdl:output message="impl:getUserRelatedRolesResponse" name="getUserRelatedRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="getUserRoles" parameterOrder="userId">
+			<wsdl:input message="impl:getUserRolesRequest" name="getUserRolesRequest"/>
+			<wsdl:output message="impl:getUserRolesResponse" name="getUserRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="hasUserRole" parameterOrder="userId companyId name inherited">
+			<wsdl:input message="impl:hasUserRoleRequest" name="hasUserRoleRequest"/>
+			<wsdl:output message="impl:hasUserRoleResponse" name="hasUserRoleResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="hasUserRoles" parameterOrder="userId companyId names inherited">
+			<wsdl:input message="impl:hasUserRolesRequest" name="hasUserRolesRequest"/>
+			<wsdl:output message="impl:hasUserRolesResponse" name="hasUserRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="unsetUserRoles" parameterOrder="userId roleIds">
+			<wsdl:input message="impl:unsetUserRolesRequest" name="unsetUserRolesRequest"/>
+			<wsdl:output message="impl:unsetUserRolesResponse" name="unsetUserRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="updateRole" parameterOrder="roleId name titleMapLanguageIds titleMapValues descriptionMapLanguageIds descriptionMapValues subtype serviceContext">
+			<wsdl:input message="impl:updateRoleRequest" name="updateRoleRequest"/>
+			<wsdl:output message="impl:updateRoleResponse" name="updateRoleResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="Portal_RoleServiceSoapBinding" type="impl:RoleServiceSoap">
+		<wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="addRole">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="addRoleRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="addRoleResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="addRole">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="addRoleRequest1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="addRoleResponse1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="addUserRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="addUserRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="addUserRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deleteRole">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="deleteRoleRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="deleteRoleResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getGroupRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getGroupRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getGroupRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getRole">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getRoleRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getRoleResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getRole">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getRoleRequest1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getRoleResponse1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getUserGroupGroupRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getUserGroupGroupRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getUserGroupGroupRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getUserGroupRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getUserGroupRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getUserGroupRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getUserRelatedRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getUserRelatedRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getUserRelatedRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getUserRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="getUserRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="getUserRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="hasUserRole">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="hasUserRoleRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="hasUserRoleResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="hasUserRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="hasUserRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="hasUserRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="unsetUserRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="unsetUserRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="unsetUserRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="updateRole">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="updateRoleRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="updateRoleResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="RoleServiceSoapService">
+		<wsdl:port binding="impl:Portal_RoleServiceSoapBinding" name="Portal_RoleService">
+			<wsdlsoap:address location="http://localhost:8080/api/axis/Portal_RoleService"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

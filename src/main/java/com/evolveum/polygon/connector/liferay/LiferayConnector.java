@@ -19,6 +19,12 @@ package com.evolveum.polygon.connector.liferay;
 import com.evolveum.polygon.connector.liferay.contact.ContactServiceSoap;
 import com.evolveum.polygon.connector.liferay.contact.ContactServiceSoapServiceLocator;
 import com.evolveum.polygon.connector.liferay.contact.ContactSoap;
+import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoap;
+import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.organization.OrganizationSoap;
+import com.evolveum.polygon.connector.liferay.role.RoleServiceSoap;
+import com.evolveum.polygon.connector.liferay.role.RoleServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.role.RoleSoap;
 import com.evolveum.polygon.connector.liferay.user.*;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
@@ -33,7 +39,6 @@ import org.identityconnectors.framework.spi.Connector;
 import org.identityconnectors.framework.spi.ConnectorClass;
 import org.identityconnectors.framework.spi.operations.*;
 
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.*;
 
@@ -42,11 +47,24 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
 
     private static final Log LOG = Log.getLog(LiferayConnector.class);
 
+    public static final String SERVICE_USERSERVICE = "Portal_UserService";
+    public static final String SERVICE_CONTACTSERVICE = "Portal_ContactService";
+    public static final String SERVICE_EXPANDOVALUESERVICE = "Portlet_Expando_ExpandoValueService";
+    public static final String SERVICE_ROLESERVICE = "Portal_RoleService";
+    public static final String SERVICE_ORGANIZATIONSERVICE = "Portal_OrganizationService";
+    // not used now:
+    public static final String SERVICE_GROUPSERVICE = "Portal_GroupService";
+    public static final String SERVICE_USERGROUPSERVICE = "Portal_UserGroupService";
+    public static final String SERVICE_USERGROUPROLESERVICE = "Portal_UserGroupRoleService";
+
     // not relevant params for MidPoint, password and screen name are mandatory params when creating Account
     private static final boolean AUTO_PASSWORD = false;
     private static final boolean AUTO_SCREEN_NAME = false;
 
     // not null defaults
+    // in Liferay at first login user must reset password by default (value=true),
+    // but when MidPoint manage account & passwords its useless and must set to 'false'
+    private static final boolean ATTR_PASSWORD_RESET_DEFAULT = false;
     private static final long ATTR_FACEBOOK_ID_DEFAULT = 0L;
     private static final int ATTR_PREFIX_ID_DEFAULT = 0;
     private static final int ATTR_SUFFIX_ID_DEFAULT = 0;
@@ -57,7 +75,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     private static final boolean ATTR_SEND_EMAIL_DEFAULT = false;
     private static final String ATTR_STRING_DEFAULT = ""; //call trim() in liferay
     private static final int ATTR_STATUS_ENABLED = 0; //active user in liferay
-    private static final int ATTR_STATUS_DEFAULT = 2; //default user status in liferay (not visible)
+    private static final int ATTR_STATUS_DEFAULT = 2; //default user status in liferay (not visible in GUI)
     private static final int ATTR_STATUS_DISABLED = 5; // when disabled in GUI manually
 
     // parameters in addUser()
@@ -77,10 +95,12 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     private static final String ATTR_BIRTHDAY_DAY = "birthdayDay";
     private static final String ATTR_BIRTHDAY_YEAR = "birthdayYear";
     private static final String ATTR_JOB_TITLE = "jobTitle";
+
+    private static final String ATTR_ROLE_IDS = "roleIds";
+    private static final String ATTR_ORGANIZATION_IDS = "organizationIds";
+
     // not implemented now
 //    private static final String ATTR_GROUP_IDS = "groupIds";
-//    private static final String ATTR_ORGANIZATION_IDS = "organizationIds";
-//    private static final String ATTR_ROLE_IDS = "roleIds";
 //    private static final String ATTR_USER_GROUP_IDS = "userGroupIds";
 
     private static final String ATTR_SEND_EMAIL = "sendEmail";
@@ -117,6 +137,8 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
 
     UserServiceSoap userService;
     ContactServiceSoap contactService;
+    RoleServiceSoap roleService;
+    OrganizationServiceSoap organizationService;
 
     @Override
     public Configuration getConfiguration() {
@@ -130,11 +152,15 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
 
         UserServiceSoapServiceLocator locatorUser = new UserServiceSoapServiceLocator();
         ContactServiceSoapServiceLocator locatorContact = new ContactServiceSoapServiceLocator();
+        RoleServiceSoapServiceLocator locatorRole = new RoleServiceSoapServiceLocator();
+        OrganizationServiceSoapServiceLocator locatorOrganization = new OrganizationServiceSoapServiceLocator();
         try {
-            userService = locatorUser.getPortal_UserService(new URL(((LiferayConfiguration) configuration).getHostUrl() + LiferayConfiguration.SERVICE_USERSERVICE));
-            contactService = locatorContact.getPortal_ContactService(new URL(((LiferayConfiguration) configuration).getHostUrl() + LiferayConfiguration.SERVICE_CONTACTSERVICE));
+            userService = locatorUser.getPortal_UserService(((LiferayConfiguration) configuration).getUrl(SERVICE_USERSERVICE));
+            contactService = locatorContact.getPortal_ContactService(((LiferayConfiguration) configuration).getUrl(SERVICE_CONTACTSERVICE));
+            roleService = locatorRole.getPortal_RoleService(((LiferayConfiguration) configuration).getUrl(SERVICE_ROLESERVICE));
+            organizationService = locatorOrganization.getPortal_OrganizationService(((LiferayConfiguration) configuration).getUrl(SERVICE_ORGANIZATIONSERVICE));
         } catch (Exception e) {
-            LOG.error(e, "Connection failed to: " + ((LiferayConfiguration) configuration).getHostUrl());
+            LOG.error(e, "Connection failed to: " + ((LiferayConfiguration) configuration).getEndpoint());
             throw new ConnectorIOException(e.getMessage(), e);
         }
 
@@ -149,6 +175,8 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         }
         userService = null;
         contactService = null;
+        roleService = null;
+        organizationService = null;
     }
 
     @Override
@@ -217,10 +245,18 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         attributeJobTitleBuilder.setReturnedByDefault(false); // included in Contacts, not in Liferay User
         objClassBuilder.addAttributeInfo(attributeJobTitleBuilder.build());
 
+        AttributeInfoBuilder attributeRoleIdsBuilder = new AttributeInfoBuilder(ATTR_ROLE_IDS, Long.class);
+        attributeRoleIdsBuilder.setReturnedByDefault(false); // slower queries
+        attributeRoleIdsBuilder.setMultiValued(true);
+        objClassBuilder.addAttributeInfo(attributeRoleIdsBuilder.build());
+
+        AttributeInfoBuilder attributeOrganizationIdsBuilder = new AttributeInfoBuilder(ATTR_ORGANIZATION_IDS, Long.class);
+        attributeOrganizationIdsBuilder.setReturnedByDefault(false); // slower queries
+        attributeOrganizationIdsBuilder.setMultiValued(true);
+        objClassBuilder.addAttributeInfo(attributeOrganizationIdsBuilder.build());
+
         //not implemented now:
 //        private static final String ATTR_GROUP_IDS = "groupIds"; // long[]
-//        private static final String ATTR_ORGANIZATION_IDS = "organizationIds"; // long[]
-//        private static final String ATTR_ROLE_IDS = "roleIds"; // long[]
 //        private static final String ATTR_USER_GROUP_IDS = "userGroupIds"; // long[]
 
         objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_SEND_EMAIL, Boolean.class).build());
@@ -314,6 +350,10 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
             password = passwordList.get(0);
         }
 
+        if (isBlank(password)) {
+            throw new InvalidAttributeValueException("Missing mandatory attribute " + OperationalAttributes.PASSWORD_NAME);
+        }
+
         // check if user already exists, AsixFault not transfer these information from liferay server exception
         try {
             UserSoap existUser = userService.getUserByScreenName(configuration.getCompanyId(), screenName);
@@ -342,15 +382,16 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         String jobTitle = getStringAttr(attributes, ATTR_JOB_TITLE);
         boolean sendEmail = getAttr(attributes, ATTR_SEND_EMAIL, Boolean.class, ATTR_SEND_EMAIL_DEFAULT, true);
 
+        long[] roleIds = getMultiValAttr(attributes, ATTR_ROLE_IDS, null);
+        long[] organizationIds = getMultiValAttr(attributes, ATTR_ORGANIZATION_IDS, null);
+
         //not implemented now:
         long[] groupIds = null;
-        long[] organizationIds = null;
-        long[] roleIds = null;
         long[] userGroupIds = null;
         UserGroupRoleSoap[] userGroupRoles = new UserGroupRoleSoap[0];
 
         // updateUser params
-        boolean passwordReset = getAttr(attributes, ATTR_PASSWORD_RESET, Boolean.class, configuration.getPasswordResetDefault(), true);
+        boolean passwordReset = getAttr(attributes, ATTR_PASSWORD_RESET, Boolean.class, ATTR_PASSWORD_RESET_DEFAULT, true);
         String reminderQueryQuestion = getStringAttr(attributes, ATTR_REMINDER_QUERY_QUESTION);
         String reminderQueryAnswer = getStringAttr(attributes, ATTR_REMINDER_QUERY_ANSWER);
         String timeZoneId = getStringAttr(attributes, ATTR_TIME_ZONE_ID);
@@ -370,6 +411,12 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         try {
             ServiceContext serviceContext = new ServiceContext();
 
+            LOG.ok("addUser args in createUser: companyId:{0}, screenName:{1}, emailAddress:{2}, facebookId:{3}, openId:{4}, locale:{5}, " +
+                            "firstName:{6}, middleName:{7}, lastName:{8}, prefixId:{9}, suffixId:{10}, male:{11}, birthdayMonth:{12}, birthdayDay:{13}, " +
+                            "birthdayYear:{14}, jobTitle:{15}, groupIds:{16}, organizationIds:{17}, roleIds:{18}, userGroupIds:{19}, sendEmail:{20}",
+                    configuration.getCompanyId(), screenName, emailAddress, facebookId, openId, locale,
+                    firstName, middleName, lastName, prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
+                    jobTitle, groupIds, Arrays.toString(organizationIds), Arrays.toString(roleIds), userGroupIds, sendEmail);
             // create user
             UserSoap newUser = userService.addUser(configuration.getCompanyId(), AUTO_PASSWORD, password, password,
                     AUTO_SCREEN_NAME, screenName, emailAddress, facebookId, openId, locale,
@@ -383,12 +430,26 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
 
             //other not set parameters to call updateUser
             boolean callUpdateUser = false;
-            if (passwordReset != configuration.getPasswordResetDefault() || reminderQueryQuestion != null || reminderQueryAnswer != null
+            if (passwordReset != ATTR_PASSWORD_RESET_DEFAULT || reminderQueryQuestion != null || reminderQueryAnswer != null
                     || timeZoneId != null || greeting != null || comments != null || smsSn != null || aimSn != null || facebookSn != null
                     || icqSn != null || jabberSn != null || msnSn != null || msnSn != null || mySpaceSn != null || skypeSn != null
                     || twitterSn != null || ymSn != null || userGroupRoles.length > 0) {
                 callUpdateUser = true;
                 String newPassword = null;
+
+                LOG.ok("updateUser with additional args in createUser: userId:{0}, " +
+                                "reminderQueryQuestion:{1}, reminderQueryAnswer:{2}, screenName:{3}, emailAddress:{4}, facebookId:{5}, openId:{6}, locale:{7}, " +
+                                "timeZoneId:{8}, greeting:{9}, comments:{10}, firstName:{11}, middleName:{12}, lastName:{13}, prefixId:{14}, suffixId:{15}, male:{16}, " +
+                                "birthdayMonth:{17}, birthdayDay:{18}, birthdayYear:{19}, smsSn:{20}, aimSn:{21}, facebookSn:{22}, icqSn:{23}, jabberSn:{24}, msnSn:{25}, " +
+                                "mySpaceSn:{26}, skypeSn:{27}, twitterSn:{28}, ymSn:{29}, jobTitle:{30}, groupIds:{31}, organizationIds:{32}, roleIds:{33}, " +
+                                "userGroupRoles:{34}, userGroupIds:{35}",
+                        newUser.getUserId(),
+                        reminderQueryQuestion, reminderQueryAnswer, screenName, emailAddress, facebookId, openId, locale,
+                        timeZoneId, greeting, comments, firstName, middleName, lastName, prefixId, suffixId, male,
+                        birthdayMonth, birthdayDay, birthdayYear, smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn,
+                        mySpaceSn, skypeSn, twitterSn, ymSn, jobTitle, groupIds, Arrays.toString(organizationIds), Arrays.toString(roleIds),
+                        userGroupRoles, userGroupIds);
+
                 userService.updateUser(newUser.getUserId(), password, newPassword, newPassword, passwordReset,
                         reminderQueryQuestion, reminderQueryAnswer, screenName, emailAddress, facebookId, openId, locale,
                         timeZoneId, greeting, comments, firstName, middleName, lastName, prefixId, suffixId, male,
@@ -411,7 +472,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
 
     private void updateStatus(long userId, Set<Attribute> attributes) throws RemoteException {
         Boolean enable = getAttr(attributes, OperationalAttributes.ENABLE_NAME, Boolean.class);
-        LOG.ok("updateStatus, userId: {0}, enabled: {1}", userId, enable);
+        LOG.ok("updateStatus, userId: {0}, enabled: {1} (if null, not applied)", userId, enable);
         if (enable != null) {
             int newStatus = enable ? ATTR_STATUS_ENABLED : ATTR_STATUS_DISABLED;
             userService.updateStatus(userId, newStatus);
@@ -473,9 +534,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
             password = passwordList.get(0);
         }
 
-//        LOG.ok("userPass: "+origUser.getPassword()+", encrypted: "+origUser.isPasswordEncrypted()+", password from MidPoint: "+password); //hash
-
-        boolean passwordReset = getAttr(attributes, ATTR_PASSWORD_RESET, Boolean.class, configuration.getPasswordResetDefault(), true);
+        boolean passwordReset = getAttr(attributes, ATTR_PASSWORD_RESET, Boolean.class, ATTR_PASSWORD_RESET_DEFAULT, true);
         if (password != null) {
             try {
                 userService.updatePassword(toLong(uid), password, password, passwordReset);
@@ -511,10 +570,10 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         if (sendEmail != null && sendEmail)
             LOG.warn("In operation update() for user {0}:{1} is not supported sending email notification about their new account, attribute: sendEmail is true", origUser.getUserId(), origUser.getScreenName());
 
+        long[] roleIds = getMultiValAttr(attributes, ATTR_ROLE_IDS, null);
+        long[] organizationIds = getMultiValAttr(attributes, ATTR_ORGANIZATION_IDS, null);
 
-        long[] groupIds = null; // do nothing, see Liferay src
-        long[] organizationIds = null; // do nothing
-        long[] roleIds = null; // do nothing
+        long[] groupIds = null; // do nothing
         long[] userGroupIds = null; // do nothing
         UserGroupRoleSoap[] userGroupRoles = null; // do nothing
 
@@ -538,6 +597,17 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         try {
             String newPassword = null; // set upper over method updatePassword(...)
             ServiceContext serviceContext = new ServiceContext();
+
+            LOG.ok("updateUser args in updateUser: userId:{0}, passwordReset:{1}, " +
+                            "reminderQueryQuestion:{2}, reminderQueryAnswer:{3}, screenName:{4}, emailAddress:{5}, facebookId:{6}, openId:{7}, " +
+                            "languageId:{8}, timeZoneId:{9}, greeting:{10}, comments:{11}, firstName:{12}, middleName:{13}, lastName:{14}, prefixId:{15}, suffixId:{16}, " +
+                            "male:{17}, birthdayMonth:{18}, birthdayDay:{19}, birthdayYear:{20}, smsSn:{21}, aimSn:{22}, facebookSn:{23}, icqSn:{24}, jabberSn:{25}, msnSn:{26}, " +
+                            "mySpaceSn:{27}, skypeSn:{28}, twitterSn:{29}, ymSn:{30}, jobTitle:{31}, groupIds:{32}, organizationIds:{33}, roleIds:{34}, userGroupRoles:{35}, userGroupIds:{36}",
+                    origUser.getUserId(), passwordReset,
+                    reminderQueryQuestion, reminderQueryAnswer, screenName, emailAddress, facebookId, openId,
+                    languageId, timeZoneId, greeting, comments, firstName, middleName, lastName, prefixId, suffixId,
+                    male, birthdayMonth, birthdayDay, birthdayYear, smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn,
+                    mySpaceSn, skypeSn, twitterSn, ymSn, jobTitle, Arrays.toString(groupIds), Arrays.toString(organizationIds), Arrays.toString(roleIds), Arrays.toString(userGroupRoles), Arrays.toString(userGroupIds));
 
             userService.updateUser(origUser.getUserId(), password, newPassword, newPassword, passwordReset,
                     reminderQueryQuestion, reminderQueryAnswer, screenName, emailAddress, facebookId, openId,
@@ -568,7 +638,9 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
             try {
                 boolean contactsToGet = contactsToGet(options);
-                LOG.ok("executeQuery: {0}, contactsToGet: ", query, contactsToGet);
+                boolean rolesToGet = attrToGet(options, ATTR_ROLE_IDS);
+                boolean organizationsToGet = attrToGet(options, ATTR_ORGANIZATION_IDS);
+                LOG.ok("executeQuery: {0}, contactsToGet: {1}, rolesToGet: {2}, organizationsToGet: {3} ", query, contactsToGet, rolesToGet, organizationsToGet);
                 // find by screenName
                 if (query != null && query.byName != null) {
                     UserSoap user = userService.getUserByScreenName(configuration.getCompanyId(), query.byName);
@@ -576,7 +648,15 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                     if (contactsToGet) {
                         contact = contactService.getContact(user.getContactId());
                     }
-                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
+                    RoleSoap roles[] = null;
+                    if (rolesToGet) {
+                        roles = roleService.getUserRoles(user.getUserId());
+                    }
+                    OrganizationSoap organizations[] = null;
+                    if (organizationsToGet) {
+                        organizations = organizationService.getUserOrganizations(user.getUserId());
+                    }
+                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact, roles, organizations);
                     handler.handle(connectorObject);
 
                     //find by Uid (user Primary Key)
@@ -586,18 +666,33 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                     if (contactsToGet) {
                         contact = contactService.getContact(user.getContactId());
                     }
-                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
+                    RoleSoap roles[] = null;
+                    if (rolesToGet) {
+                        roles = roleService.getUserRoles(user.getUserId());
+                    }
+                    OrganizationSoap organizations[] = null;
+                    if (organizationsToGet) {
+                        organizations = organizationService.getUserOrganizations(user.getUserId());
+                    }
+                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact, roles, organizations);
                     handler.handle(connectorObject);
 
                     //find by emailAddress
                 } else if (query != null && query.byEmailAddress != null) {
                     UserSoap user = userService.getUserByEmailAddress(configuration.getCompanyId(), query.byEmailAddress);
-                    ContactSoap contactSoap = new ContactSoap();
                     ContactSoap contact = null;
                     if (contactsToGet) {
                         contact = contactService.getContact(user.getContactId());
                     }
-                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
+                    RoleSoap roles[] = null;
+                    if (rolesToGet) {
+                        roles = roleService.getUserRoles(user.getUserId());
+                    }
+                    OrganizationSoap organizations[] = null;
+                    if (organizationsToGet) {
+                        organizations = organizationService.getUserOrganizations(user.getUserId());
+                    }
+                    ConnectorObject connectorObject = convertUserToConnectorObject(user, contact, roles, organizations);
                     handler.handle(connectorObject);
 
                     // find all
@@ -616,7 +711,15 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                         if (contactsToGet) {
                             contact = contactService.getContact(user.getContactId());
                         }
-                        ConnectorObject connectorObject = convertUserToConnectorObject(user, contact);
+                        RoleSoap roles[] = null;
+                        if (rolesToGet) {
+                            roles = roleService.getUserRoles(user.getUserId());
+                        }
+                        OrganizationSoap organizations[] = null;
+                        if (organizationsToGet) {
+                            organizations = organizationService.getUserOrganizations(user.getUserId());
+                        }
+                        ConnectorObject connectorObject = convertUserToConnectorObject(user, contact, roles, organizations);
                         handler.handle(connectorObject);
                     }
                 }
@@ -639,8 +742,25 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
             ObjectClassInfo objectClassInfo = schemaAccount();
             Set<AttributeInfo> attributeInfos = objectClassInfo.getAttributeInfo();
             for (AttributeInfo attributeInfo : attributeInfos) {
-                if (!attributeInfo.isReturnedByDefault() && attributeInfo.getName().equals(attrToGet))
+                if (!attributeInfo.isReturnedByDefault() && attributeInfo.getName().equals(attrToGet)
+                        && !ATTR_ROLE_IDS.equals(attrToGet)
+                        && !ATTR_ORGANIZATION_IDS.equals(attrToGet))
                     return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean attrToGet(OperationOptions options, String attribute) {
+        String[] attrsToGet = options.getAttributesToGet();
+        if (attrsToGet == null) {
+            // not configured, get all data
+            return true;
+        }
+        for (String attrToGet : attrsToGet) {
+            if (attribute.equals(attrToGet)) {
+                return true;
             }
         }
 
@@ -669,9 +789,15 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         }
 
         try {
+            boolean contactsToGet = contactsToGet(options);
+            boolean rolesToGet = attrToGet(options, ATTR_ROLE_IDS);
+            boolean organizationsToGet = attrToGet(options, ATTR_ORGANIZATION_IDS);
+
             int userCount = userService.getCompanyUsersCount(configuration.getCompanyId());
-            LOG.ok("number of users in Liferay to synchronize: {0}", userCount);
+            LOG.ok("number of users in Liferay to synchronize: {0}, contactsToGet: {1}, rolesToGet: {2}, organizationsToGet: {3}",
+                    userCount, contactsToGet, rolesToGet, organizationsToGet);
             UserSoap[] users = userService.getCompanyUsers(configuration.getCompanyId(), 0, userCount);
+
 
             int changed = 0;
             for (UserSoap user : users) {
@@ -682,7 +808,19 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                     if (++changed % 10 == 0) {
                         LOG.ok("syncAccount: processing {0}. of {1} users", changed, userCount);
                     }
-                    ContactSoap contact = contactService.getContact(user.getContactId());
+
+                    ContactSoap contact = null;
+                    if (contactsToGet) {
+                        contact = contactService.getContact(user.getContactId());
+                    }
+                    RoleSoap roles[] = null;
+                    if (rolesToGet) {
+                        roles = roleService.getUserRoles(user.getUserId());
+                    }
+                    OrganizationSoap organizations[] = null;
+                    if (organizationsToGet) {
+                        organizations = organizationService.getUserOrganizations(user.getUserId());
+                    }
 
                     SyncDeltaBuilder deltaBuilder = new SyncDeltaBuilder();
                     SyncToken deltaToken = toSyncToken(lastModification.getTime());
@@ -692,7 +830,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                     // user.getCreateDate().after(fromToken), but it's not necessary to do this
                     SyncDeltaType deltaType = SyncDeltaType.CREATE_OR_UPDATE;
 
-                    ConnectorObject targetObject = convertUserToConnectorObject(user, contact);
+                    ConnectorObject targetObject = convertUserToConnectorObject(user, contact, roles, organizations);
                     deltaBuilder.setObject(targetObject);
                     deltaBuilder.setUid(toUid(user.getUserId()));
 
@@ -738,7 +876,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
             throw new ConnectorIOException(e.getMessage(), e);
         }
 
-        LOG.ok("getLatestSyncAccountToken, last change was {0} on user {1} ", lastChange, lastChangedUser.getScreenName());
+        LOG.ok("getLatestSyncAccountToken, last change was {0} on user {1} ", lastChange, lastChangedUser != null ? lastChangedUser.getScreenName() : null);
 
         if (lastChange == null)
             return null;
@@ -750,7 +888,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         if (date == null)
             return null;
 
-        return new SyncToken(new Long(date.getTime()));
+        return new SyncToken(date.getTime());
     }
 
     private Calendar getLastModification(UserSoap user) {
@@ -778,7 +916,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         return ret;
     }
 
-    private ConnectorObject convertUserToConnectorObject(UserSoap user, ContactSoap contact) {
+    private ConnectorObject convertUserToConnectorObject(UserSoap user, ContactSoap contact, RoleSoap roles[], OrganizationSoap organizations[]) {
         ConnectorObjectBuilder builder = new ConnectorObjectBuilder();
         builder.setUid(toUid(user.getUserId()));
         builder.setName(user.getScreenName());
@@ -813,6 +951,24 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
             addAttr(builder, ATTR_SKYPE_SN, contact.getSkypeSn());
             addAttr(builder, ATTR_TWITTER_SN, contact.getTwitterSn());
             addAttr(builder, ATTR_YM_SN, contact.getYmSn());
+        }
+
+        if (roles != null) {
+            List<Long> roleIds = new ArrayList<Long>(roles.length);
+            for (int i = 0; i < roles.length; i++) {
+                roleIds.add(roles[i].getRoleId());
+            }
+
+            builder.addAttribute(AttributeBuilder.build(ATTR_ROLE_IDS, roleIds));
+        }
+
+        if (organizations != null) {
+            List<Long> organizationsIds = new ArrayList<Long>(organizations.length);
+            for (int i = 0; i < organizations.length; i++) {
+                organizationsIds.add(organizations[i].getOrganizationId());
+            }
+
+            builder.addAttribute(AttributeBuilder.build(ATTR_ORGANIZATION_IDS, organizationsIds));
         }
 
         boolean enable = ATTR_STATUS_ENABLED == user.getStatus() ? true : false;
@@ -897,6 +1053,30 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         // set default value when attrName not in changed attributes
         return defaultVal;
     }
+
+    private long[] getMultiValAttr(Set<Attribute> attributes, String attrName, long[] defaultVal) {
+        for (Attribute attr : attributes) {
+            if (attrName.equals(attr.getName())) {
+                List<Object> vals = attr.getValue();
+                if (vals == null || vals.isEmpty()) {
+                    // set empty value
+                    return defaultVal;
+                }
+                long[] ret = new long[vals.size()];
+                for (int i = 0; i < vals.size(); i++) {
+                    Long val = (Long) vals.get(i);
+                    if (val == null)
+                        throw new InvalidAttributeValueException("Value " + null + " must be not null for attribute " + attrName);
+
+                    ret[i] = val;
+                }
+                return ret;
+            }
+        }
+        // set default value when attrName not in changed attributes
+        return defaultVal;
+    }
+
 
     private <T> void addAttr(ConnectorObjectBuilder builder, String attrName, T attrVal) {
         if (attrVal != null) {

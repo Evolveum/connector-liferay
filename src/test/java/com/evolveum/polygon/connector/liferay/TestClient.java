@@ -19,13 +19,20 @@ package com.evolveum.polygon.connector.liferay;
 import com.evolveum.polygon.connector.liferay.contact.ContactServiceSoap;
 import com.evolveum.polygon.connector.liferay.contact.ContactServiceSoapServiceLocator;
 import com.evolveum.polygon.connector.liferay.contact.ContactSoap;
+import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoap;
+import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.role.RoleServiceSoap;
+import com.evolveum.polygon.connector.liferay.role.RoleServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.role.RoleSoap;
 import com.evolveum.polygon.connector.liferay.user.*;
 import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URL;
+import java.rmi.RemoteException;
 import java.util.*;
 
 public class TestClient {
@@ -35,10 +42,14 @@ public class TestClient {
     public static final long COMPANY_ID = 20155L; // id in my instance
     public static final String HOST = "http://test:test@localhost:8080/api/axis/";
 
-    private static String URL_USER_SERVICE = HOST + LiferayConfiguration.SERVICE_USERSERVICE;
-    private static String URL_CONTACT_SERVICE = HOST + LiferayConfiguration.SERVICE_CONTACTSERVICE;
+    private static String URL_USER_SERVICE = HOST + LiferayConnector.SERVICE_USERSERVICE;
+    private static String URL_CONTACT_SERVICE = HOST + LiferayConnector.SERVICE_CONTACTSERVICE;
+    private static String URL_EXPANDOVALUE_SERVICE = HOST + LiferayConnector.SERVICE_EXPANDOVALUESERVICE;
+    private static String URL_ROLE_SERVICE = HOST + LiferayConnector.SERVICE_ROLESERVICE;
     private static UserServiceSoap userSoap;
     private static ContactServiceSoap contactSoap;
+    private static RoleServiceSoap roleSoap;
+    private static ExpandoValueServiceSoap expandoValueSoap;
 
 
     @BeforeClass
@@ -50,6 +61,12 @@ public class TestClient {
 
         ContactServiceSoapServiceLocator locatorContact = new ContactServiceSoapServiceLocator();
         contactSoap = locatorContact.getPortal_ContactService(new URL(URL_CONTACT_SERVICE));
+
+        ExpandoValueServiceSoapServiceLocator locatorExpandoValuue = new ExpandoValueServiceSoapServiceLocator();
+        expandoValueSoap = locatorExpandoValuue.getPortlet_Expando_ExpandoValueService(new URL(URL_EXPANDOVALUE_SERVICE));
+
+        RoleServiceSoapServiceLocator locatorRole = new RoleServiceSoapServiceLocator();
+        roleSoap = locatorRole.getPortal_RoleService(new URL(URL_ROLE_SERVICE));
     }
 
     @Test
@@ -107,7 +124,7 @@ public class TestClient {
     public void testConnectorCRUDOperations() throws Exception {
         LiferayConfiguration config = new LiferayConfiguration();
         config.setCompanyId(TestClient.COMPANY_ID);
-        config.setHostUrl(TestClient.HOST);
+        config.setEndpoint(TestClient.HOST);
 
         LiferayConnector lc = new LiferayConnector();
         lc.init(config);
@@ -154,7 +171,7 @@ public class TestClient {
     public void testConnectorQueryOperation() throws Exception {
         LiferayConfiguration config = new LiferayConfiguration();
         config.setCompanyId(TestClient.COMPANY_ID);
-        config.setHostUrl(TestClient.HOST);
+        config.setEndpoint(TestClient.HOST);
 
         LiferayConnector lc = new LiferayConnector();
         lc.init(config);
@@ -280,7 +297,7 @@ public class TestClient {
     public void testConnectorSyncOperations() throws Exception {
         LiferayConfiguration config = new LiferayConfiguration();
         config.setCompanyId(TestClient.COMPANY_ID);
-        config.setHostUrl(TestClient.HOST);
+        config.setEndpoint(TestClient.HOST);
 
         LiferayConnector lc = new LiferayConnector();
         lc.init(config);
@@ -299,10 +316,70 @@ public class TestClient {
 
         Calendar cal = GregorianCalendar.getInstance();
         cal.set(2015, 4, 4);
-        token = new SyncToken((Long) cal.getTime().getTime());
+        token = new SyncToken(cal.getTime().getTime());
         lc.sync(objectClass, token, handler, null);
 
         token = null;
         lc.sync(objectClass, token, handler, null);
+    }
+
+    @Test
+    public void testExpandoValue() throws Exception {
+        expandoValueSoap.addValue(COMPANY_ID, "com.liferay.portal.model.User", "CUSTOM_FIELDS", "CustomBoolean", 20542, Boolean.FALSE);
+        String dataBool = expandoValueSoap.getJSONData(COMPANY_ID, "com.liferay.portal.model.User", "CUSTOM_FIELDS", "CustomBoolean", 20542);
+        System.out.println("dataBool = " + dataBool);
+
+        expandoValueSoap.addValue(COMPANY_ID, "com.liferay.portal.model.User", "CUSTOM_FIELDS", "CustomDate", 20542, new Date());
+        String dataDate = expandoValueSoap.getJSONData(COMPANY_ID, "com.liferay.portal.model.User", "CUSTOM_FIELDS", "CustomDate", 20542);
+        System.out.println("dataDate = " + dataDate);
+    }
+
+    @Test
+    public void testConnectorCreateUser() {
+
+        LiferayConfiguration config = new LiferayConfiguration();
+        config.setCompanyId(TestClient.COMPANY_ID);
+        config.setUsername("test");
+        config.setPlainPassword("test");
+        config.setEndpoint("http://localhost:8080/api/axis/");
+
+        LiferayConnector lc = new LiferayConnector();
+        lc.init(config);
+
+
+        //create
+        ObjectClass objectClass = new ObjectClass(ObjectClass.ACCOUNT_NAME);
+
+        Set<Attribute> attributes = new HashSet<Attribute>();
+        String randName = "random"+(new Random()).nextInt();
+        attributes.add(AttributeBuilder.build("emailAddress", randName + "@evolveom.com"));
+        attributes.add(AttributeBuilder.build(Name.NAME, randName));
+        attributes.add(AttributeBuilder.build("firstName", randName));
+        attributes.add(AttributeBuilder.build("facebookId", 12345l));
+        attributes.add(AttributeBuilder.build("facebookSn", "facebookSn"));
+        GuardedString gs = new GuardedString("test".toCharArray());
+        attributes.add(AttributeBuilder.build(OperationalAttributeInfos.PASSWORD.getName(), gs));
+
+        attributes.add(AttributeBuilder.build(OperationalAttributeInfos.ENABLE.getName(), true));
+
+        Uid userUid = lc.create(objectClass, attributes, null);
+        LOG.ok("New user Uid is: {0}, name: {1}", userUid.getUidValue(), randName);
+    }
+
+
+    @Test
+    public void testGetRoles() throws RemoteException {
+        RoleSoap testRole = roleSoap.getRole(TestClient.COMPANY_ID, "testRole");
+        System.out.println("testRole.getRoleId() = " + testRole.getRoleId());
+        RoleSoap powerUserRole = roleSoap.getRole(TestClient.COMPANY_ID, "Power User");
+        System.out.println("powerUserRole.getRoleId() = " + powerUserRole.getRoleId());
+
+        RoleSoap[] roles = roleSoap.getUserRoles(23511l);
+
+        for (RoleSoap role : roles) {
+            System.out.println("roles = " + role.getRoleId() + ": " + role.getName());
+        }
+
+        
     }
 }

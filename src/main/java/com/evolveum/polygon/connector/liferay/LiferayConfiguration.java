@@ -16,7 +16,7 @@
 
 package com.evolveum.polygon.connector.liferay;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.AbstractConfiguration;
 import org.identityconnectors.common.logging.Log;
@@ -31,44 +31,52 @@ public class LiferayConfiguration extends AbstractConfiguration {
 
     private static final Log LOG = Log.getLog(LiferayConfiguration.class);
 
-    private String hostUrl;
+    private String endpoint;
+    private String username;
+    private GuardedString password;
     private Long companyId;
-    // in Liferay at first login user must reset password by default (value=true),
-    // but when MidPoint manage account & passwords its useless and must set to 'false'
-    private Boolean passwordResetDefault = false;
-    public static final String SERVICE_USERSERVICE = "Portal_UserService";
-    public static final String SERVICE_CONTACTSERVICE = "Portal_ContactService";
-    // not implemented now:
-    public static final String SERVICE_ORGANIZATIONSERVICE = "Portal_OrganizationService";
-    public static final String SERVICE_GROUPSERVICE = "Portal_GroupService";
-    public static final String SERVICE_ROLESERVICE = "Portal_RoleService";
-    public static final String SERVICE_USERGROUPSERVICE = "Portal_UserGroupService";
-    public static final String SERVICE_USERGROUPROLESERVICE = "Portal_UserGroupRoleService";
 
     @Override
     public void validate() {
-        if (isBlank(hostUrl))
-            throw new ConfigurationException("hostUrl is empty, format: http://user:password@localhost:8080/api/axis/ where user in {ScreenName, UserID} and the portal authentication type must be set either to screen name or user ID, see: https://dev.liferay.com/develop/tutorials/-/knowledge_base/6-2/service-security-layers");
-        if (companyId==null)
+        if (isBlank(endpoint))
+            throw new ConfigurationException("endpoint is empty");
+        if (isBlank(username))
+            throw new ConfigurationException("username is empty");
+        if (isBlank(getPlainPassword()))
+            throw new ConfigurationException("password is empty");
+        if (companyId == null)
             throw new ConfigurationException("companyId is empty");
 
         try {
-            new URL(hostUrl);
-        }
-        catch (MalformedURLException e)
-        {
-            throw new ConfigurationException("Mallformed hostUrl: "+hostUrl, e);
+            new URL(endpoint);
+        } catch (MalformedURLException e) {
+            throw new ConfigurationException("Malformed endpoint: " + endpoint, e);
         }
     }
 
-    @ConfigurationProperty(displayMessageKey = "liferay.config.hostUrl",
-            helpMessageKey = "liferay.config.hostUrl.help")
-    public String getHostUrl() {
-        return hostUrl;
+    private String getPlainPassword() {
+        final StringBuilder sb = new StringBuilder();
+        if (password != null) {
+            password.access(new GuardedString.Accessor() {
+                @Override
+                public void access(char[] chars) {
+                    sb.append(new String(chars));
+                }
+            });
+        } else {
+            return null;
+        }
+        return sb.toString();
     }
 
-    public void setHostUrl(String hostUrl) {
-        this.hostUrl = hostUrl;
+    @ConfigurationProperty(displayMessageKey = "liferay.config.endpoint",
+            helpMessageKey = "liferay.config.endpoint.help")
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 
     @ConfigurationProperty(displayMessageKey = "liferay.config.companyId",
@@ -81,11 +89,33 @@ public class LiferayConfiguration extends AbstractConfiguration {
         this.companyId = companyId;
     }
 
-    public Boolean getPasswordResetDefault() {
-        return passwordResetDefault;
+    @ConfigurationProperty(displayMessageKey = "liferay.config.username",
+            helpMessageKey = "liferay.config.username.help")
+    public String getUsername() {
+        return username;
     }
 
-    public void setPasswordResetDefault(Boolean passwordResetDefault) {
-        this.passwordResetDefault = passwordResetDefault;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "liferay.config.password",
+            helpMessageKey = "liferay.config.password.help")
+    public GuardedString getPassword() {
+        return password;
+    }
+
+    public void setPassword(GuardedString password) {
+        this.password = password;
+    }
+
+    public URL getUrl(String portalService) throws MalformedURLException {
+        String url = endpoint.replace("//", "//" + username + ":" + getPlainPassword() + "@");
+        return new URL(url + portalService);
+    }
+
+
+    void setPlainPassword(String plainPassword) {
+        this.password = new GuardedString(plainPassword.toCharArray());
     }
 }

@@ -1,7 +1,5 @@
 package com.evolveum.polygon.connector.liferay;
 
-import com.evolveum.polygon.connector.liferay.LiferayConnector;
-import com.evolveum.polygon.connector.liferay.LiferayFilter;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.Name;
