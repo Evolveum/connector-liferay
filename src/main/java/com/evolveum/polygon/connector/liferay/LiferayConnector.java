@@ -504,6 +504,11 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
 
     private Uid updateUser(Uid uid, Set<Attribute> attributes) {
         LOG.ok("updateUser, Uid: {0}, attributes: {1}", uid, attributes);
+        if (attributes == null || attributes.isEmpty()) {
+            LOG.ok("update ignored, nothing changed");
+            return uid;
+        }
+
         Long targetUserId = toLong(uid);
 
         UserSoap origUser;
