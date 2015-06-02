@@ -22,70 +22,70 @@
 			<complexType name="ArrayOf_xsd_long">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:long[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="xsd:long[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_xsd_string">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_xsd_anyType">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_AddressSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns4:AddressSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns4:AddressSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_EmailAddressSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns4:EmailAddressSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns4:EmailAddressSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_PhoneSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns4:PhoneSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns4:PhoneSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_WebsiteSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns4:WebsiteSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns4:WebsiteSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns13_AnnouncementsDeliverySoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns12:AnnouncementsDeliverySoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns12:AnnouncementsDeliverySoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_UserSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns4:UserSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns4:UserSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_UserGroupRoleSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns4:UserGroupRoleSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns4:UserGroupRoleSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>

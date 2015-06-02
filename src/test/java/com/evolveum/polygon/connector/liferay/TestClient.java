@@ -21,6 +21,9 @@ import com.evolveum.polygon.connector.liferay.contact.ContactServiceSoapServiceL
 import com.evolveum.polygon.connector.liferay.contact.ContactSoap;
 import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoap;
 import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoap;
+import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.organization.OrganizationSoap;
 import com.evolveum.polygon.connector.liferay.role.RoleServiceSoap;
 import com.evolveum.polygon.connector.liferay.role.RoleServiceSoapServiceLocator;
 import com.evolveum.polygon.connector.liferay.role.RoleSoap;
@@ -46,10 +49,12 @@ public class TestClient {
     private static String URL_CONTACT_SERVICE = HOST + LiferayConnector.SERVICE_CONTACTSERVICE;
     private static String URL_EXPANDOVALUE_SERVICE = HOST + LiferayConnector.SERVICE_EXPANDOVALUESERVICE;
     private static String URL_ROLE_SERVICE = HOST + LiferayConnector.SERVICE_ROLESERVICE;
+    private static String URL_ORGANIZATION_SERVICE = HOST + LiferayConnector.SERVICE_ORGANIZATIONSERVICE;
     private static UserServiceSoap userSoap;
     private static ContactServiceSoap contactSoap;
     private static RoleServiceSoap roleSoap;
     private static ExpandoValueServiceSoap expandoValueSoap;
+    private static OrganizationServiceSoap organizationSoap;
 
 
     @BeforeClass
@@ -67,6 +72,9 @@ public class TestClient {
 
         RoleServiceSoapServiceLocator locatorRole = new RoleServiceSoapServiceLocator();
         roleSoap = locatorRole.getPortal_RoleService(new URL(URL_ROLE_SERVICE));
+
+        OrganizationServiceSoapServiceLocator locatorOrganization = new OrganizationServiceSoapServiceLocator();
+        organizationSoap = locatorOrganization.getPortal_OrganizationService(new URL(URL_ORGANIZATION_SERVICE));
     }
 
     @Test
@@ -351,7 +359,7 @@ public class TestClient {
         ObjectClass objectClass = new ObjectClass(ObjectClass.ACCOUNT_NAME);
 
         Set<Attribute> attributes = new HashSet<Attribute>();
-        String randName = "random"+(new Random()).nextInt();
+        String randName = "random" + (new Random()).nextInt();
         attributes.add(AttributeBuilder.build("emailAddress", randName + "@evolveom.com"));
         attributes.add(AttributeBuilder.build(Name.NAME, randName));
         attributes.add(AttributeBuilder.build("firstName", randName));
@@ -379,7 +387,62 @@ public class TestClient {
         for (RoleSoap role : roles) {
             System.out.println("roles = " + role.getRoleId() + ": " + role.getName());
         }
+    }
 
-        
+    @Test
+    public void testuserGroupRoleUpdate() throws RemoteException {
+        long[] ogrs = new long[] {23983};
+        long[] roleIds = new long[] {20166};
+        long siteId = 23906;
+        long[] groupIds = new long[] {siteId};
+        long[] userGroupIds = null;
+
+        UserGroupRoleSoap[] userGroupRoles = new UserGroupRoleSoap[1];
+        UserGroupRoleSoap ugr = new UserGroupRoleSoap();
+//        long userID = 24221l;
+        long userID = 23406;
+        ugr.setUserId(userID);
+        ugr.setGroupId(siteId);
+        ugr.setRoleId(23905);
+        userGroupRoles[0] = ugr;
+
+        userSoap.updateUser(userID, null, null, null, false, "", "", "userrole01",
+                "userrole01@evolveum.com", 1l, "", "", "", "", "",
+                "userrole01", "", "userrole01", 0, 0, true, 3, 22, 1981,
+                "", "", "", "", "", "", "", "", "", "",
+                "", groupIds, ogrs, roleIds, userGroupRoles, userGroupIds, new ServiceContext());
+
+
+    }
+
+    @Test
+    public void testOrganization() throws Exception {
+        Long test2Org = 24200l;
+        OrganizationSoap org = organizationSoap.getOrganization(23983l);
+        System.out.println("org.getName() = " + org.getName());
+        System.out.println("org.getType() = " + org.getType());
+        System.out.println("org.getTreePath() = " + org.getTreePath());
+        System.out.println("org.getParentOrganizationId() = " + org.getParentOrganizationId());
+        System.out.println("org.getRegionId() = " + org.getRegionId());
+        System.out.println("org.getCountryId() = " + org.getCountryId());
+        System.out.println("org.getStatusId() = " + org.getStatusId());
+        System.out.println("org.getComments() = " + org.getComments());
+
+        long rootOrganizationId =0;
+        long regionId = 0;
+        long countryId = 0;
+        int statusId = 12017; // ListTypeConstants.ORGANIZATION_STATUS_DEFAULT
+        String comments = null;
+        boolean site = false; // create site
+        String type = "regular-organization";
+        OrganizationSoap ret = organizationSoap.addOrganization(rootOrganizationId, "testOrg", type, regionId, countryId, statusId, comments, site, null);
+        System.out.println("ret.getOrganizationId() = " + ret.getOrganizationId());
+//
+//
+//        updateOrganization(long organizationId, long parentOrganizationId, String name, String type, long regionId, long countryId, int statusId, String comments, boolean site, ServiceContext serviceContext)
+//
+//        getOrganizationId(long companyId, String name)
+
+
     }
 }

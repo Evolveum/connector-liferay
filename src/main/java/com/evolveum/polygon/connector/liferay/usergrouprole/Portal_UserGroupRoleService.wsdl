@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="urn:http.service.portal.liferay.com" xmlns:intf="urn:http.service.portal.liferay.com" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:http.service.portal.liferay.com">
+	<!--WSDL created by Apache Axis version: 1.4Built on Apr 22, 2006 (06:55:48 PDT)-->
+	<wsdl:types>
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:http.service.portal.liferay.com">
+			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+			<complexType name="ArrayOf_xsd_long">
+				<complexContent>
+					<restriction base="soapenc:Array">
+						<value ref="soapenc:arrayType" wsdl:arrayType="xsd:long[]"/>
+					</restriction>
+				</complexContent>
+			</complexType>
+		</schema>
+	</wsdl:types>
+	<wsdl:message name="addUserGroupRolesResponse1"/>
+	<wsdl:message name="addUserGroupRolesRequest1">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="groupId" type="xsd:long"/>
+		<wsdl:part name="roleIds" type="impl:ArrayOf_xsd_long"/>
+	</wsdl:message>
+	<wsdl:message name="addUserGroupRolesRequest">
+		<wsdl:part name="userIds" type="impl:ArrayOf_xsd_long"/>
+		<wsdl:part name="groupId" type="xsd:long"/>
+		<wsdl:part name="roleId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="deleteUserGroupRolesResponse"/>
+	<wsdl:message name="deleteUserGroupRolesResponse1"/>
+	<wsdl:message name="deleteUserGroupRolesRequest">
+		<wsdl:part name="userIds" type="impl:ArrayOf_xsd_long"/>
+		<wsdl:part name="groupId" type="xsd:long"/>
+		<wsdl:part name="roleId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="addUserGroupRolesResponse"/>
+	<wsdl:message name="deleteUserGroupRolesRequest1">
+		<wsdl:part name="userId" type="xsd:long"/>
+		<wsdl:part name="groupId" type="xsd:long"/>
+		<wsdl:part name="roleIds" type="impl:ArrayOf_xsd_long"/>
+	</wsdl:message>
+	<wsdl:portType name="UserGroupRoleServiceSoap">
+		<wsdl:operation name="addUserGroupRoles" parameterOrder="userIds groupId roleId">
+			<wsdl:input message="impl:addUserGroupRolesRequest" name="addUserGroupRolesRequest"/>
+			<wsdl:output message="impl:addUserGroupRolesResponse" name="addUserGroupRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="addUserGroupRoles" parameterOrder="userId groupId roleIds">
+			<wsdl:input message="impl:addUserGroupRolesRequest1" name="addUserGroupRolesRequest1"/>
+			<wsdl:output message="impl:addUserGroupRolesResponse1" name="addUserGroupRolesResponse1"/>
+		</wsdl:operation>
+		<wsdl:operation name="deleteUserGroupRoles" parameterOrder="userIds groupId roleId">
+			<wsdl:input message="impl:deleteUserGroupRolesRequest" name="deleteUserGroupRolesRequest"/>
+			<wsdl:output message="impl:deleteUserGroupRolesResponse" name="deleteUserGroupRolesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="deleteUserGroupRoles" parameterOrder="userId groupId roleIds">
+			<wsdl:input message="impl:deleteUserGroupRolesRequest1" name="deleteUserGroupRolesRequest1"/>
+			<wsdl:output message="impl:deleteUserGroupRolesResponse1" name="deleteUserGroupRolesResponse1"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="Portal_UserGroupRoleServiceSoapBinding" type="impl:UserGroupRoleServiceSoap">
+		<wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="addUserGroupRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="addUserGroupRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="addUserGroupRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="addUserGroupRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="addUserGroupRolesRequest1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="addUserGroupRolesResponse1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deleteUserGroupRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="deleteUserGroupRolesRequest">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="deleteUserGroupRolesResponse">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deleteUserGroupRoles">
+			<wsdlsoap:operation soapAction=""/>
+			<wsdl:input name="deleteUserGroupRolesRequest1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:input>
+			<wsdl:output name="deleteUserGroupRolesResponse1">
+				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="UserGroupRoleServiceSoapService">
+		<wsdl:port binding="impl:Portal_UserGroupRoleServiceSoapBinding" name="Portal_UserGroupRoleService">
+			<wsdlsoap:address location="http://localhost:8080/api/axis/Portal_UserGroupRoleService"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

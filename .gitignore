@@ -13,3 +13,10 @@ hs_err_pid*
 
 target
 *~
+/src/test/java/com/evolveum/polygon/connector/liferay/TestCVTIClient.java
+/src/test/java/com/evolveum/polygon/connector/liferay/TestGroovy.groovy
+.idea
+/connector-liferay.iml
+/debug.txt
+/make.bat
+/makeDebug.bat

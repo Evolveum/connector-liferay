@@ -53,14 +53,14 @@
 			<complexType name="ArrayOf_xsd_string">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_ContactSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:ContactSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:ContactSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>

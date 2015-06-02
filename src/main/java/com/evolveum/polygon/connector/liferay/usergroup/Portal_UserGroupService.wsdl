@@ -24,41 +24,6 @@
 					</restriction>
 				</complexContent>
 			</complexType>
-			<complexType name="ArrayOf_tns2_AddressSoap">
-				<complexContent>
-					<restriction base="soapenc:Array">
-						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:AddressSoap[]"/>
-					</restriction>
-				</complexContent>
-			</complexType>
-			<complexType name="ArrayOf_tns2_EmailAddressSoap">
-				<complexContent>
-					<restriction base="soapenc:Array">
-						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:EmailAddressSoap[]"/>
-					</restriction>
-				</complexContent>
-			</complexType>
-			<complexType name="ArrayOf_tns2_OrgLaborSoap">
-				<complexContent>
-					<restriction base="soapenc:Array">
-						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:OrgLaborSoap[]"/>
-					</restriction>
-				</complexContent>
-			</complexType>
-			<complexType name="ArrayOf_tns2_PhoneSoap">
-				<complexContent>
-					<restriction base="soapenc:Array">
-						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:PhoneSoap[]"/>
-					</restriction>
-				</complexContent>
-			</complexType>
-			<complexType name="ArrayOf_tns2_WebsiteSoap">
-				<complexContent>
-					<restriction base="soapenc:Array">
-						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:WebsiteSoap[]"/>
-					</restriction>
-				</complexContent>
-			</complexType>
 			<complexType name="ArrayOf_xsd_string">
 				<complexContent>
 					<restriction base="soapenc:Array">
@@ -73,10 +38,10 @@
 					</restriction>
 				</complexContent>
 			</complexType>
-			<complexType name="ArrayOf_tns2_OrganizationSoap">
+			<complexType name="ArrayOf_tns2_UserGroupSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:OrganizationSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:UserGroupSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
@@ -95,102 +60,20 @@
 			<import namespace="http://xml.apache.org/xml-soap"/>
 			<import namespace="http://theme.portal.liferay.com"/>
 			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
-			<complexType name="AddressSoap">
+			<complexType name="UserGroupSoap">
 				<sequence>
-					<element name="addressId" type="xsd:long"/>
-					<element name="city" nillable="true" type="soapenc:string"/>
-					<element name="classNameId" type="xsd:long"/>
-					<element name="classPK" type="xsd:long"/>
+					<element name="addedByLDAPImport" type="xsd:boolean"/>
 					<element name="companyId" type="xsd:long"/>
-					<element name="countryId" type="xsd:long"/>
 					<element name="createDate" nillable="true" type="xsd:dateTime"/>
-					<element name="mailing" type="xsd:boolean"/>
+					<element name="description" nillable="true" type="soapenc:string"/>
 					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
-					<element name="primary" type="xsd:boolean"/>
+					<element name="name" nillable="true" type="soapenc:string"/>
+					<element name="parentUserGroupId" type="xsd:long"/>
 					<element name="primaryKey" type="xsd:long"/>
-					<element name="regionId" type="xsd:long"/>
-					<element name="street1" nillable="true" type="soapenc:string"/>
-					<element name="street2" nillable="true" type="soapenc:string"/>
-					<element name="street3" nillable="true" type="soapenc:string"/>
-					<element name="typeId" type="xsd:int"/>
+					<element name="userGroupId" type="xsd:long"/>
 					<element name="userId" type="xsd:long"/>
 					<element name="userName" nillable="true" type="soapenc:string"/>
 					<element name="uuid" nillable="true" type="soapenc:string"/>
-					<element name="zip" nillable="true" type="soapenc:string"/>
-				</sequence>
-			</complexType>
-			<complexType name="EmailAddressSoap">
-				<sequence>
-					<element name="address" nillable="true" type="soapenc:string"/>
-					<element name="classNameId" type="xsd:long"/>
-					<element name="classPK" type="xsd:long"/>
-					<element name="companyId" type="xsd:long"/>
-					<element name="createDate" nillable="true" type="xsd:dateTime"/>
-					<element name="emailAddressId" type="xsd:long"/>
-					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
-					<element name="primary" type="xsd:boolean"/>
-					<element name="primaryKey" type="xsd:long"/>
-					<element name="typeId" type="xsd:int"/>
-					<element name="userId" type="xsd:long"/>
-					<element name="userName" nillable="true" type="soapenc:string"/>
-					<element name="uuid" nillable="true" type="soapenc:string"/>
-				</sequence>
-			</complexType>
-			<complexType name="OrgLaborSoap">
-				<sequence>
-					<element name="friClose" type="xsd:int"/>
-					<element name="friOpen" type="xsd:int"/>
-					<element name="monClose" type="xsd:int"/>
-					<element name="monOpen" type="xsd:int"/>
-					<element name="orgLaborId" type="xsd:long"/>
-					<element name="organizationId" type="xsd:long"/>
-					<element name="primaryKey" type="xsd:long"/>
-					<element name="satClose" type="xsd:int"/>
-					<element name="satOpen" type="xsd:int"/>
-					<element name="sunClose" type="xsd:int"/>
-					<element name="sunOpen" type="xsd:int"/>
-					<element name="thuClose" type="xsd:int"/>
-					<element name="thuOpen" type="xsd:int"/>
-					<element name="tueClose" type="xsd:int"/>
-					<element name="tueOpen" type="xsd:int"/>
-					<element name="typeId" type="xsd:int"/>
-					<element name="wedClose" type="xsd:int"/>
-					<element name="wedOpen" type="xsd:int"/>
-				</sequence>
-			</complexType>
-			<complexType name="PhoneSoap">
-				<sequence>
-					<element name="classNameId" type="xsd:long"/>
-					<element name="classPK" type="xsd:long"/>
-					<element name="companyId" type="xsd:long"/>
-					<element name="createDate" nillable="true" type="xsd:dateTime"/>
-					<element name="extension" nillable="true" type="soapenc:string"/>
-					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
-					<element name="number" nillable="true" type="soapenc:string"/>
-					<element name="phoneId" type="xsd:long"/>
-					<element name="primary" type="xsd:boolean"/>
-					<element name="primaryKey" type="xsd:long"/>
-					<element name="typeId" type="xsd:int"/>
-					<element name="userId" type="xsd:long"/>
-					<element name="userName" nillable="true" type="soapenc:string"/>
-					<element name="uuid" nillable="true" type="soapenc:string"/>
-				</sequence>
-			</complexType>
-			<complexType name="WebsiteSoap">
-				<sequence>
-					<element name="classNameId" type="xsd:long"/>
-					<element name="classPK" type="xsd:long"/>
-					<element name="companyId" type="xsd:long"/>
-					<element name="createDate" nillable="true" type="xsd:dateTime"/>
-					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
-					<element name="primary" type="xsd:boolean"/>
-					<element name="primaryKey" type="xsd:long"/>
-					<element name="typeId" type="xsd:int"/>
-					<element name="url" nillable="true" type="soapenc:string"/>
-					<element name="userId" type="xsd:long"/>
-					<element name="userName" nillable="true" type="soapenc:string"/>
-					<element name="uuid" nillable="true" type="soapenc:string"/>
-					<element name="websiteId" type="xsd:long"/>
 				</sequence>
 			</complexType>
 			<complexType name="PortletPreferencesIds">
@@ -200,27 +83,6 @@
 					<element name="ownerType" type="xsd:int"/>
 					<element name="plid" type="xsd:long"/>
 					<element name="portletId" nillable="true" type="soapenc:string"/>
-				</sequence>
-			</complexType>
-			<complexType name="OrganizationSoap">
-				<sequence>
-					<element name="comments" nillable="true" type="soapenc:string"/>
-					<element name="companyId" type="xsd:long"/>
-					<element name="countryId" type="xsd:long"/>
-					<element name="createDate" nillable="true" type="xsd:dateTime"/>
-					<element name="modifiedDate" nillable="true" type="xsd:dateTime"/>
-					<element name="name" nillable="true" type="soapenc:string"/>
-					<element name="organizationId" type="xsd:long"/>
-					<element name="parentOrganizationId" type="xsd:long"/>
-					<element name="primaryKey" type="xsd:long"/>
-					<element name="recursable" type="xsd:boolean"/>
-					<element name="regionId" type="xsd:long"/>
-					<element name="statusId" type="xsd:int"/>
-					<element name="treePath" nillable="true" type="soapenc:string"/>
-					<element name="type" nillable="true" type="soapenc:string"/>
-					<element name="userId" type="xsd:long"/>
-					<element name="userName" nillable="true" type="soapenc:string"/>
-					<element name="uuid" nillable="true" type="soapenc:string"/>
 				</sequence>
 			</complexType>
 		</schema>
@@ -584,522 +446,244 @@
 			</complexType>
 		</schema>
 	</wsdl:types>
-	<wsdl:message name="getUserOrganizationsRequest">
+	<wsdl:message name="addUserGroupRequest1">
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="description" type="xsd:string"/>
+		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
+	</wsdl:message>
+	<wsdl:message name="unsetTeamUserGroupsResponse"/>
+	<wsdl:message name="addTeamUserGroupsRequest">
+		<wsdl:part name="teamId" type="xsd:long"/>
+		<wsdl:part name="userGroupIds" type="impl:ArrayOf_xsd_long"/>
+	</wsdl:message>
+	<wsdl:message name="addTeamUserGroupsResponse"/>
+	<wsdl:message name="getUserGroupRequest">
+		<wsdl:part name="userGroupId" type="xsd:long"/>
+	</wsdl:message>
+	<wsdl:message name="getUserGroupRequest1">
+		<wsdl:part name="name" type="xsd:string"/>
+	</wsdl:message>
+	<wsdl:message name="getUserUserGroupsRequest">
 		<wsdl:part name="userId" type="xsd:long"/>
 	</wsdl:message>
-	<wsdl:message name="deleteLogoResponse"/>
-	<wsdl:message name="updateOrganizationResponse">
-		<wsdl:part name="updateOrganizationReturn" type="tns1:OrganizationSoap"/>
+	<wsdl:message name="deleteUserGroupRequest">
+		<wsdl:part name="userGroupId" type="xsd:long"/>
 	</wsdl:message>
-	<wsdl:message name="addPasswordPolicyOrganizationsResponse"/>
-	<wsdl:message name="unsetPasswordPolicyOrganizationsRequest">
-		<wsdl:part name="passwordPolicyId" type="xsd:long"/>
-		<wsdl:part name="organizationIds" type="impl:ArrayOf_xsd_long"/>
+	<wsdl:message name="deleteUserGroupResponse"/>
+	<wsdl:message name="updateUserGroupRequest">
+		<wsdl:part name="userGroupId" type="xsd:long"/>
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="description" type="xsd:string"/>
 	</wsdl:message>
-	<wsdl:message name="getOrganizationIdResponse">
-		<wsdl:part name="getOrganizationIdReturn" type="xsd:long"/>
+	<wsdl:message name="addGroupUserGroupsResponse"/>
+	<wsdl:message name="addUserGroupRequest">
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="description" type="xsd:string"/>
 	</wsdl:message>
-	<wsdl:message name="getOrganizationsResponse">
-		<wsdl:part name="getOrganizationsReturn" type="impl:ArrayOf_tns2_OrganizationSoap"/>
+	<wsdl:message name="getUserGroupResponse">
+		<wsdl:part name="getUserGroupReturn" type="tns1:UserGroupSoap"/>
 	</wsdl:message>
-	<wsdl:message name="addOrganizationResponse">
-		<wsdl:part name="addOrganizationReturn" type="tns1:OrganizationSoap"/>
+	<wsdl:message name="getUserUserGroupsResponse">
+		<wsdl:part name="getUserUserGroupsReturn" type="impl:ArrayOf_tns2_UserGroupSoap"/>
 	</wsdl:message>
-	<wsdl:message name="getOrganizationsResponse1">
-		<wsdl:part name="getOrganizationsReturn" type="impl:ArrayOf_tns2_OrganizationSoap"/>
+	<wsdl:message name="updateUserGroupRequest1">
+		<wsdl:part name="userGroupId" type="xsd:long"/>
+		<wsdl:part name="name" type="xsd:string"/>
+		<wsdl:part name="description" type="xsd:string"/>
+		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
 	</wsdl:message>
-	<wsdl:message name="addGroupOrganizationsResponse"/>
-	<wsdl:message name="getOrganizationRequest">
-		<wsdl:part name="organizationId" type="xsd:long"/>
-	</wsdl:message>
-	<wsdl:message name="setGroupOrganizationsResponse"/>
-	<wsdl:message name="getUserOrganizationsResponse">
-		<wsdl:part name="getUserOrganizationsReturn" type="impl:ArrayOf_tns2_OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="getOrganizationResponse">
-		<wsdl:part name="getOrganizationReturn" type="tns1:OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="deleteOrganizationRequest">
-		<wsdl:part name="organizationId" type="xsd:long"/>
-	</wsdl:message>
-	<wsdl:message name="setGroupOrganizationsRequest">
+	<wsdl:message name="addGroupUserGroupsRequest">
 		<wsdl:part name="groupId" type="xsd:long"/>
-		<wsdl:part name="organizationIds" type="impl:ArrayOf_xsd_long"/>
+		<wsdl:part name="userGroupIds" type="impl:ArrayOf_xsd_long"/>
 	</wsdl:message>
-	<wsdl:message name="getOrganizationsRequest">
-		<wsdl:part name="companyId" type="xsd:long"/>
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
+	<wsdl:message name="updateUserGroupResponse1">
+		<wsdl:part name="updateUserGroupReturn" type="tns1:UserGroupSoap"/>
 	</wsdl:message>
-	<wsdl:message name="deleteOrganizationResponse"/>
-	<wsdl:message name="updateOrganizationRequest3">
-		<wsdl:part name="organizationId" type="xsd:long"/>
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
+	<wsdl:message name="unsetTeamUserGroupsRequest">
+		<wsdl:part name="teamId" type="xsd:long"/>
+		<wsdl:part name="userGroupIds" type="impl:ArrayOf_xsd_long"/>
 	</wsdl:message>
-	<wsdl:message name="updateOrganizationRequest">
-		<wsdl:part name="organizationId" type="xsd:long"/>
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="recursable" type="xsd:boolean"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="addresses" type="impl:ArrayOf_tns2_AddressSoap"/>
-		<wsdl:part name="emailAddresses" type="impl:ArrayOf_tns2_EmailAddressSoap"/>
-		<wsdl:part name="orgLabors" type="impl:ArrayOf_tns2_OrgLaborSoap"/>
-		<wsdl:part name="phones" type="impl:ArrayOf_tns2_PhoneSoap"/>
-		<wsdl:part name="websites" type="impl:ArrayOf_tns2_WebsiteSoap"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
+	<wsdl:message name="updateUserGroupResponse">
+		<wsdl:part name="updateUserGroupReturn" type="tns1:UserGroupSoap"/>
 	</wsdl:message>
-	<wsdl:message name="deleteLogoRequest">
-		<wsdl:part name="organizationId" type="xsd:long"/>
+	<wsdl:message name="addUserGroupResponse1">
+		<wsdl:part name="addUserGroupReturn" type="tns1:UserGroupSoap"/>
 	</wsdl:message>
-	<wsdl:message name="updateOrganizationResponse2">
-		<wsdl:part name="updateOrganizationReturn" type="tns1:OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="updateOrganizationResponse1">
-		<wsdl:part name="updateOrganizationReturn" type="tns1:OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="getManageableOrganizationsRequest">
-		<wsdl:part name="actionId" type="xsd:string"/>
-		<wsdl:part name="max" type="xsd:int"/>
-	</wsdl:message>
-	<wsdl:message name="updateOrganizationResponse3">
-		<wsdl:part name="updateOrganizationReturn" type="tns1:OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="getOrganizationsCountRequest">
-		<wsdl:part name="companyId" type="xsd:long"/>
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-	</wsdl:message>
-	<wsdl:message name="addOrganizationResponse3">
-		<wsdl:part name="addOrganizationReturn" type="tns1:OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="addOrganizationResponse2">
-		<wsdl:part name="addOrganizationReturn" type="tns1:OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="addGroupOrganizationsRequest">
+	<wsdl:message name="unsetGroupUserGroupsResponse"/>
+	<wsdl:message name="unsetGroupUserGroupsRequest">
 		<wsdl:part name="groupId" type="xsd:long"/>
-		<wsdl:part name="organizationIds" type="impl:ArrayOf_xsd_long"/>
+		<wsdl:part name="userGroupIds" type="impl:ArrayOf_xsd_long"/>
 	</wsdl:message>
-	<wsdl:message name="addOrganizationResponse1">
-		<wsdl:part name="addOrganizationReturn" type="tns1:OrganizationSoap"/>
+	<wsdl:message name="getUserGroupResponse1">
+		<wsdl:part name="getUserGroupReturn" type="tns1:UserGroupSoap"/>
 	</wsdl:message>
-	<wsdl:message name="updateOrganizationRequest2">
-		<wsdl:part name="organizationId" type="xsd:long"/>
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="addresses" type="impl:ArrayOf_tns2_AddressSoap"/>
-		<wsdl:part name="emailAddresses" type="impl:ArrayOf_tns2_EmailAddressSoap"/>
-		<wsdl:part name="orgLabors" type="impl:ArrayOf_tns2_OrgLaborSoap"/>
-		<wsdl:part name="phones" type="impl:ArrayOf_tns2_PhoneSoap"/>
-		<wsdl:part name="websites" type="impl:ArrayOf_tns2_WebsiteSoap"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
+	<wsdl:message name="addUserGroupResponse">
+		<wsdl:part name="addUserGroupReturn" type="tns1:UserGroupSoap"/>
 	</wsdl:message>
-	<wsdl:message name="updateOrganizationRequest1">
-		<wsdl:part name="organizationId" type="xsd:long"/>
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="recursable" type="xsd:boolean"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
-	</wsdl:message>
-	<wsdl:message name="addOrganizationRequest1">
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="recursable" type="xsd:boolean"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
-	</wsdl:message>
-	<wsdl:message name="addOrganizationRequest2">
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="addresses" type="impl:ArrayOf_tns2_AddressSoap"/>
-		<wsdl:part name="emailAddresses" type="impl:ArrayOf_tns2_EmailAddressSoap"/>
-		<wsdl:part name="orgLabors" type="impl:ArrayOf_tns2_OrgLaborSoap"/>
-		<wsdl:part name="phones" type="impl:ArrayOf_tns2_PhoneSoap"/>
-		<wsdl:part name="websites" type="impl:ArrayOf_tns2_WebsiteSoap"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
-	</wsdl:message>
-	<wsdl:message name="addPasswordPolicyOrganizationsRequest">
-		<wsdl:part name="passwordPolicyId" type="xsd:long"/>
-		<wsdl:part name="organizationIds" type="impl:ArrayOf_xsd_long"/>
-	</wsdl:message>
-	<wsdl:message name="unsetPasswordPolicyOrganizationsResponse"/>
-	<wsdl:message name="getOrganizationsCountResponse">
-		<wsdl:part name="getOrganizationsCountReturn" type="xsd:int"/>
-	</wsdl:message>
-	<wsdl:message name="unsetGroupOrganizationsResponse"/>
-	<wsdl:message name="getManageableOrganizationsResponse">
-		<wsdl:part name="getManageableOrganizationsReturn" type="impl:ArrayOf_tns2_OrganizationSoap"/>
-	</wsdl:message>
-	<wsdl:message name="getOrganizationsRequest1">
-		<wsdl:part name="companyId" type="xsd:long"/>
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="start" type="xsd:int"/>
-		<wsdl:part name="end" type="xsd:int"/>
-	</wsdl:message>
-	<wsdl:message name="unsetGroupOrganizationsRequest">
-		<wsdl:part name="groupId" type="xsd:long"/>
-		<wsdl:part name="organizationIds" type="impl:ArrayOf_xsd_long"/>
-	</wsdl:message>
-	<wsdl:message name="getOrganizationIdRequest">
-		<wsdl:part name="companyId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-	</wsdl:message>
-	<wsdl:message name="addOrganizationRequest3">
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
-	</wsdl:message>
-	<wsdl:message name="addOrganizationRequest">
-		<wsdl:part name="parentOrganizationId" type="xsd:long"/>
-		<wsdl:part name="name" type="xsd:string"/>
-		<wsdl:part name="type" type="xsd:string"/>
-		<wsdl:part name="recursable" type="xsd:boolean"/>
-		<wsdl:part name="regionId" type="xsd:long"/>
-		<wsdl:part name="countryId" type="xsd:long"/>
-		<wsdl:part name="statusId" type="xsd:int"/>
-		<wsdl:part name="comments" type="xsd:string"/>
-		<wsdl:part name="site" type="xsd:boolean"/>
-		<wsdl:part name="addresses" type="impl:ArrayOf_tns2_AddressSoap"/>
-		<wsdl:part name="emailAddresses" type="impl:ArrayOf_tns2_EmailAddressSoap"/>
-		<wsdl:part name="orgLabors" type="impl:ArrayOf_tns2_OrgLaborSoap"/>
-		<wsdl:part name="phones" type="impl:ArrayOf_tns2_PhoneSoap"/>
-		<wsdl:part name="websites" type="impl:ArrayOf_tns2_WebsiteSoap"/>
-		<wsdl:part name="serviceContext" type="tns2:ServiceContext"/>
-	</wsdl:message>
-	<wsdl:portType name="OrganizationServiceSoap">
-		<wsdl:operation name="addGroupOrganizations" parameterOrder="groupId organizationIds">
-			<wsdl:input message="impl:addGroupOrganizationsRequest" name="addGroupOrganizationsRequest"/>
-			<wsdl:output message="impl:addGroupOrganizationsResponse" name="addGroupOrganizationsResponse"/>
+	<wsdl:portType name="UserGroupServiceSoap">
+		<wsdl:operation name="addGroupUserGroups" parameterOrder="groupId userGroupIds">
+			<wsdl:input message="impl:addGroupUserGroupsRequest" name="addGroupUserGroupsRequest"/>
+			<wsdl:output message="impl:addGroupUserGroupsResponse" name="addGroupUserGroupsResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization" parameterOrder="parentOrganizationId name type recursable regionId countryId statusId comments site addresses emailAddresses orgLabors phones websites serviceContext">
-			<wsdl:input message="impl:addOrganizationRequest" name="addOrganizationRequest"/>
-			<wsdl:output message="impl:addOrganizationResponse" name="addOrganizationResponse"/>
+		<wsdl:operation name="addTeamUserGroups" parameterOrder="teamId userGroupIds">
+			<wsdl:input message="impl:addTeamUserGroupsRequest" name="addTeamUserGroupsRequest"/>
+			<wsdl:output message="impl:addTeamUserGroupsResponse" name="addTeamUserGroupsResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization" parameterOrder="parentOrganizationId name type recursable regionId countryId statusId comments site serviceContext">
-			<wsdl:input message="impl:addOrganizationRequest1" name="addOrganizationRequest1"/>
-			<wsdl:output message="impl:addOrganizationResponse1" name="addOrganizationResponse1"/>
+		<wsdl:operation name="addUserGroup" parameterOrder="name description">
+			<wsdl:input message="impl:addUserGroupRequest" name="addUserGroupRequest"/>
+			<wsdl:output message="impl:addUserGroupResponse" name="addUserGroupResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization" parameterOrder="parentOrganizationId name type regionId countryId statusId comments site addresses emailAddresses orgLabors phones websites serviceContext">
-			<wsdl:input message="impl:addOrganizationRequest2" name="addOrganizationRequest2"/>
-			<wsdl:output message="impl:addOrganizationResponse2" name="addOrganizationResponse2"/>
+		<wsdl:operation name="addUserGroup" parameterOrder="name description serviceContext">
+			<wsdl:input message="impl:addUserGroupRequest1" name="addUserGroupRequest1"/>
+			<wsdl:output message="impl:addUserGroupResponse1" name="addUserGroupResponse1"/>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization" parameterOrder="parentOrganizationId name type regionId countryId statusId comments site serviceContext">
-			<wsdl:input message="impl:addOrganizationRequest3" name="addOrganizationRequest3"/>
-			<wsdl:output message="impl:addOrganizationResponse3" name="addOrganizationResponse3"/>
+		<wsdl:operation name="deleteUserGroup" parameterOrder="userGroupId">
+			<wsdl:input message="impl:deleteUserGroupRequest" name="deleteUserGroupRequest"/>
+			<wsdl:output message="impl:deleteUserGroupResponse" name="deleteUserGroupResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="addPasswordPolicyOrganizations" parameterOrder="passwordPolicyId organizationIds">
-			<wsdl:input message="impl:addPasswordPolicyOrganizationsRequest" name="addPasswordPolicyOrganizationsRequest"/>
-			<wsdl:output message="impl:addPasswordPolicyOrganizationsResponse" name="addPasswordPolicyOrganizationsResponse"/>
+		<wsdl:operation name="getUserGroup" parameterOrder="userGroupId">
+			<wsdl:input message="impl:getUserGroupRequest" name="getUserGroupRequest"/>
+			<wsdl:output message="impl:getUserGroupResponse" name="getUserGroupResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="deleteLogo" parameterOrder="organizationId">
-			<wsdl:input message="impl:deleteLogoRequest" name="deleteLogoRequest"/>
-			<wsdl:output message="impl:deleteLogoResponse" name="deleteLogoResponse"/>
+		<wsdl:operation name="getUserGroup" parameterOrder="name">
+			<wsdl:input message="impl:getUserGroupRequest1" name="getUserGroupRequest1"/>
+			<wsdl:output message="impl:getUserGroupResponse1" name="getUserGroupResponse1"/>
 		</wsdl:operation>
-		<wsdl:operation name="deleteOrganization" parameterOrder="organizationId">
-			<wsdl:input message="impl:deleteOrganizationRequest" name="deleteOrganizationRequest"/>
-			<wsdl:output message="impl:deleteOrganizationResponse" name="deleteOrganizationResponse"/>
+		<wsdl:operation name="getUserUserGroups" parameterOrder="userId">
+			<wsdl:input message="impl:getUserUserGroupsRequest" name="getUserUserGroupsRequest"/>
+			<wsdl:output message="impl:getUserUserGroupsResponse" name="getUserUserGroupsResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="getManageableOrganizations" parameterOrder="actionId max">
-			<wsdl:input message="impl:getManageableOrganizationsRequest" name="getManageableOrganizationsRequest"/>
-			<wsdl:output message="impl:getManageableOrganizationsResponse" name="getManageableOrganizationsResponse"/>
+		<wsdl:operation name="unsetGroupUserGroups" parameterOrder="groupId userGroupIds">
+			<wsdl:input message="impl:unsetGroupUserGroupsRequest" name="unsetGroupUserGroupsRequest"/>
+			<wsdl:output message="impl:unsetGroupUserGroupsResponse" name="unsetGroupUserGroupsResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="getOrganizationId" parameterOrder="companyId name">
-			<wsdl:input message="impl:getOrganizationIdRequest" name="getOrganizationIdRequest"/>
-			<wsdl:output message="impl:getOrganizationIdResponse" name="getOrganizationIdResponse"/>
+		<wsdl:operation name="unsetTeamUserGroups" parameterOrder="teamId userGroupIds">
+			<wsdl:input message="impl:unsetTeamUserGroupsRequest" name="unsetTeamUserGroupsRequest"/>
+			<wsdl:output message="impl:unsetTeamUserGroupsResponse" name="unsetTeamUserGroupsResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="getOrganization" parameterOrder="organizationId">
-			<wsdl:input message="impl:getOrganizationRequest" name="getOrganizationRequest"/>
-			<wsdl:output message="impl:getOrganizationResponse" name="getOrganizationResponse"/>
+		<wsdl:operation name="updateUserGroup" parameterOrder="userGroupId name description">
+			<wsdl:input message="impl:updateUserGroupRequest" name="updateUserGroupRequest"/>
+			<wsdl:output message="impl:updateUserGroupResponse" name="updateUserGroupResponse"/>
 		</wsdl:operation>
-		<wsdl:operation name="getOrganizationsCount" parameterOrder="companyId parentOrganizationId">
-			<wsdl:input message="impl:getOrganizationsCountRequest" name="getOrganizationsCountRequest"/>
-			<wsdl:output message="impl:getOrganizationsCountResponse" name="getOrganizationsCountResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="getOrganizations" parameterOrder="companyId parentOrganizationId">
-			<wsdl:input message="impl:getOrganizationsRequest" name="getOrganizationsRequest"/>
-			<wsdl:output message="impl:getOrganizationsResponse" name="getOrganizationsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="getOrganizations" parameterOrder="companyId parentOrganizationId start end">
-			<wsdl:input message="impl:getOrganizationsRequest1" name="getOrganizationsRequest1"/>
-			<wsdl:output message="impl:getOrganizationsResponse1" name="getOrganizationsResponse1"/>
-		</wsdl:operation>
-		<wsdl:operation name="getUserOrganizations" parameterOrder="userId">
-			<wsdl:input message="impl:getUserOrganizationsRequest" name="getUserOrganizationsRequest"/>
-			<wsdl:output message="impl:getUserOrganizationsResponse" name="getUserOrganizationsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="setGroupOrganizations" parameterOrder="groupId organizationIds">
-			<wsdl:input message="impl:setGroupOrganizationsRequest" name="setGroupOrganizationsRequest"/>
-			<wsdl:output message="impl:setGroupOrganizationsResponse" name="setGroupOrganizationsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="unsetGroupOrganizations" parameterOrder="groupId organizationIds">
-			<wsdl:input message="impl:unsetGroupOrganizationsRequest" name="unsetGroupOrganizationsRequest"/>
-			<wsdl:output message="impl:unsetGroupOrganizationsResponse" name="unsetGroupOrganizationsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="unsetPasswordPolicyOrganizations" parameterOrder="passwordPolicyId organizationIds">
-			<wsdl:input message="impl:unsetPasswordPolicyOrganizationsRequest" name="unsetPasswordPolicyOrganizationsRequest"/>
-			<wsdl:output message="impl:unsetPasswordPolicyOrganizationsResponse" name="unsetPasswordPolicyOrganizationsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization" parameterOrder="organizationId parentOrganizationId name type recursable regionId countryId statusId comments site addresses emailAddresses orgLabors phones websites serviceContext">
-			<wsdl:input message="impl:updateOrganizationRequest" name="updateOrganizationRequest"/>
-			<wsdl:output message="impl:updateOrganizationResponse" name="updateOrganizationResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization" parameterOrder="organizationId parentOrganizationId name type recursable regionId countryId statusId comments site serviceContext">
-			<wsdl:input message="impl:updateOrganizationRequest1" name="updateOrganizationRequest1"/>
-			<wsdl:output message="impl:updateOrganizationResponse1" name="updateOrganizationResponse1"/>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization" parameterOrder="organizationId parentOrganizationId name type regionId countryId statusId comments site addresses emailAddresses orgLabors phones websites serviceContext">
-			<wsdl:input message="impl:updateOrganizationRequest2" name="updateOrganizationRequest2"/>
-			<wsdl:output message="impl:updateOrganizationResponse2" name="updateOrganizationResponse2"/>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization" parameterOrder="organizationId parentOrganizationId name type regionId countryId statusId comments site serviceContext">
-			<wsdl:input message="impl:updateOrganizationRequest3" name="updateOrganizationRequest3"/>
-			<wsdl:output message="impl:updateOrganizationResponse3" name="updateOrganizationResponse3"/>
+		<wsdl:operation name="updateUserGroup" parameterOrder="userGroupId name description serviceContext">
+			<wsdl:input message="impl:updateUserGroupRequest1" name="updateUserGroupRequest1"/>
+			<wsdl:output message="impl:updateUserGroupResponse1" name="updateUserGroupResponse1"/>
 		</wsdl:operation>
 	</wsdl:portType>
-	<wsdl:binding name="Portal_OrganizationServiceSoapBinding" type="impl:OrganizationServiceSoap">
+	<wsdl:binding name="Portal_UserGroupServiceSoapBinding" type="impl:UserGroupServiceSoap">
 		<wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
-		<wsdl:operation name="addGroupOrganizations">
+		<wsdl:operation name="addGroupUserGroups">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="addGroupOrganizationsRequest">
+			<wsdl:input name="addGroupUserGroupsRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="addGroupOrganizationsResponse">
+			<wsdl:output name="addGroupUserGroupsResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization">
+		<wsdl:operation name="addTeamUserGroups">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="addOrganizationRequest">
+			<wsdl:input name="addTeamUserGroupsRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="addOrganizationResponse">
+			<wsdl:output name="addTeamUserGroupsResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization">
+		<wsdl:operation name="addUserGroup">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="addOrganizationRequest1">
+			<wsdl:input name="addUserGroupRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="addOrganizationResponse1">
+			<wsdl:output name="addUserGroupResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization">
+		<wsdl:operation name="addUserGroup">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="addOrganizationRequest2">
+			<wsdl:input name="addUserGroupRequest1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="addOrganizationResponse2">
+			<wsdl:output name="addUserGroupResponse1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="addOrganization">
+		<wsdl:operation name="deleteUserGroup">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="addOrganizationRequest3">
+			<wsdl:input name="deleteUserGroupRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="addOrganizationResponse3">
+			<wsdl:output name="deleteUserGroupResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="addPasswordPolicyOrganizations">
+		<wsdl:operation name="getUserGroup">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="addPasswordPolicyOrganizationsRequest">
+			<wsdl:input name="getUserGroupRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="addPasswordPolicyOrganizationsResponse">
+			<wsdl:output name="getUserGroupResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="deleteLogo">
+		<wsdl:operation name="getUserGroup">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="deleteLogoRequest">
+			<wsdl:input name="getUserGroupRequest1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="deleteLogoResponse">
+			<wsdl:output name="getUserGroupResponse1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="deleteOrganization">
+		<wsdl:operation name="getUserUserGroups">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="deleteOrganizationRequest">
+			<wsdl:input name="getUserUserGroupsRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="deleteOrganizationResponse">
+			<wsdl:output name="getUserUserGroupsResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="getManageableOrganizations">
+		<wsdl:operation name="unsetGroupUserGroups">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="getManageableOrganizationsRequest">
+			<wsdl:input name="unsetGroupUserGroupsRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="getManageableOrganizationsResponse">
+			<wsdl:output name="unsetGroupUserGroupsResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="getOrganizationId">
+		<wsdl:operation name="unsetTeamUserGroups">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="getOrganizationIdRequest">
+			<wsdl:input name="unsetTeamUserGroupsRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="getOrganizationIdResponse">
+			<wsdl:output name="unsetTeamUserGroupsResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="getOrganization">
+		<wsdl:operation name="updateUserGroup">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="getOrganizationRequest">
+			<wsdl:input name="updateUserGroupRequest">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="getOrganizationResponse">
+			<wsdl:output name="updateUserGroupResponse">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
-		<wsdl:operation name="getOrganizationsCount">
+		<wsdl:operation name="updateUserGroup">
 			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="getOrganizationsCountRequest">
+			<wsdl:input name="updateUserGroupRequest1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:input>
-			<wsdl:output name="getOrganizationsCountResponse">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="getOrganizations">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="getOrganizationsRequest">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="getOrganizationsResponse">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="getOrganizations">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="getOrganizationsRequest1">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="getOrganizationsResponse1">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="getUserOrganizations">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="getUserOrganizationsRequest">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="getUserOrganizationsResponse">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="setGroupOrganizations">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="setGroupOrganizationsRequest">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="setGroupOrganizationsResponse">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="unsetGroupOrganizations">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="unsetGroupOrganizationsRequest">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="unsetGroupOrganizationsResponse">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="unsetPasswordPolicyOrganizations">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="unsetPasswordPolicyOrganizationsRequest">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="unsetPasswordPolicyOrganizationsResponse">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="updateOrganizationRequest">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="updateOrganizationResponse">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="updateOrganizationRequest1">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="updateOrganizationResponse1">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="updateOrganizationRequest2">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="updateOrganizationResponse2">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:output>
-		</wsdl:operation>
-		<wsdl:operation name="updateOrganization">
-			<wsdlsoap:operation soapAction=""/>
-			<wsdl:input name="updateOrganizationRequest3">
-				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
-			</wsdl:input>
-			<wsdl:output name="updateOrganizationResponse3">
+			<wsdl:output name="updateUserGroupResponse1">
 				<wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:http.service.portal.liferay.com" use="encoded"/>
 			</wsdl:output>
 		</wsdl:operation>
 	</wsdl:binding>
-	<wsdl:service name="OrganizationServiceSoapService">
-		<wsdl:port binding="impl:Portal_OrganizationServiceSoapBinding" name="Portal_OrganizationService">
-			<wsdlsoap:address location="http://localhost:8080/api/axis/Portal_OrganizationService"/>
+	<wsdl:service name="UserGroupServiceSoapService">
+		<wsdl:port binding="impl:Portal_UserGroupServiceSoapBinding" name="Portal_UserGroupService">
+			<wsdlsoap:address location="http://localhost:8080/api/axis/Portal_UserGroupService"/>
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

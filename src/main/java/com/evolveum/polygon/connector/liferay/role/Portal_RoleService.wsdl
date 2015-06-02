@@ -20,35 +20,35 @@
 			<complexType name="ArrayOf_xsd_string">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="soapenc:string[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_xsd_long">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:long[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="xsd:long[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_xsd_anyType">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_RoleSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:RoleSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:RoleSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>
 			<complexType name="ArrayOf_tns2_GroupSoap">
 				<complexContent>
 					<restriction base="soapenc:Array">
-						<attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:GroupSoap[]"/>
+						<value ref="soapenc:arrayType" wsdl:arrayType="tns1:GroupSoap[]"/>
 					</restriction>
 				</complexContent>
 			</complexType>

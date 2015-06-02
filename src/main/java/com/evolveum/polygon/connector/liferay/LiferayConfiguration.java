@@ -16,14 +16,16 @@
 
 package com.evolveum.polygon.connector.liferay;
 
+import org.identityconnectors.common.StringUtil;
+import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.AbstractConfiguration;
-import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.spi.ConfigurationProperty;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.*;
 
 import static org.identityconnectors.common.StringUtil.isBlank;
 
@@ -35,6 +37,17 @@ public class LiferayConfiguration extends AbstractConfiguration {
     private String username;
     private GuardedString password;
     private Long companyId;
+
+    private String CUSTOM_FIELD_DELIMITER = ":";
+    private String[] customFields; //java.util.Date:createdOn
+    // parsed customFields cache for internal use
+    private Map<String, Class> customFieldsClass = new HashMap<String, Class>();
+
+    private String[] defaultRoles;
+
+    private Boolean trustingAllCertificates = false;
+
+    private Boolean ignoreJSONException = false;
 
     @Override
     public void validate() {
@@ -52,6 +65,10 @@ public class LiferayConfiguration extends AbstractConfiguration {
         } catch (MalformedURLException e) {
             throw new ConfigurationException("Malformed endpoint: " + endpoint, e);
         }
+
+        if (!parseCustomFields())
+            throw new ConfigurationException("customField not configured correctly, format is type:fieldName, for example 'java.util.Date:createdOn'");
+
     }
 
     private String getPlainPassword() {
@@ -114,8 +131,108 @@ public class LiferayConfiguration extends AbstractConfiguration {
         return new URL(url + portalService);
     }
 
-
     void setPlainPassword(String plainPassword) {
         this.password = new GuardedString(plainPassword.toCharArray());
     }
+
+    @ConfigurationProperty(displayMessageKey = "liferay.config.customFields",
+            helpMessageKey = "liferay.config.customFields.help")
+    public String[] getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(String[] customFields) {
+        this.customFields = customFields;
+    }
+
+    public boolean parseCustomFields() {
+        if (this.customFields == null || this.customFields.length == 0) {
+            return true;
+        }
+
+        if (!customFieldsClass.isEmpty()) {
+            LOG.ok("parsing customFields was mades in the past, ignoring: {0}", this.customFieldsClass);
+            return true;
+        }
+
+        LOG.ok("parsing customFields: {0}", Arrays.toString(this.customFields));
+        for (int i = 0; i < customFields.length; i++) {
+            String[] customField = customFields[i].split(CUSTOM_FIELD_DELIMITER);
+            if (customField == null || customField.length != 2) {
+                throw new ConfigurationException("customField is not parsable '" + customFields[i] + "', example: 'java.util.Date:createdOn'");
+            }
+
+            if (StringUtil.isEmpty(customField[1])) {
+                throw new ConfigurationException("customField name is empty for " + customFields[i]);
+            }
+
+            if (StringUtil.isEmpty(customField[0])) {
+                throw new ConfigurationException("customField type is empty for " + customFields[i]);
+            }
+            try {
+                Class<?> type = Class.forName(customField[0]);
+                if (LiferayExpando.isSupportedCustomFieldType(type)) {
+                    // cache initialization
+                    customFieldsClass.put(customField[1], type);
+                } else {
+                    throw new ConfigurationException("customField type '" + type.getName() + "' is not supported for " + customFields[i]);
+                }
+
+            } catch (ClassNotFoundException e) {
+                throw new ConfigurationException("customField type '" + customField[0] + "' is not found for " + customFields[i] + ", " + e, e);
+            }
+        }
+
+        LOG.ok("parsed customFieldsClasses: {0}", this.customFieldsClass);
+        return true;
+    }
+
+    public Set<String> getCustomFieldNames() {
+        if (customFieldsClass.isEmpty()) {
+            return new HashSet<String>();
+        }
+
+        return customFieldsClass.keySet();
+    }
+
+    public Class getCustomFieldType(String key) {
+        if (!customFieldsClass.containsKey(key)) {
+            return null;
+        }
+
+        return customFieldsClass.get(key);
+    }
+
+    @ConfigurationProperty(displayMessageKey = "liferay.config.defaultRoles",
+            helpMessageKey = "liferay.config.defaultRoles.help")
+    public String[] getDefaultRoles() {
+        return defaultRoles;
+    }
+
+    public void setDefaultRoles(String[] defaultRoles) {
+        this.defaultRoles = defaultRoles;
+    }
+
+
+    @ConfigurationProperty(displayMessageKey = "liferay.config.trustingAllCertificates",
+            helpMessageKey = "liferay.config.trustingAllCertificates.help")
+    public Boolean getTrustingAllCertificates() {
+        return trustingAllCertificates;
+    }
+
+    public void setTrustingAllCertificates(Boolean trustingAllCertificates) {
+        this.trustingAllCertificates = trustingAllCertificates;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "liferay.config.ignoreJSONException",
+            helpMessageKey = "liferay.config.ignoreJSONException.help")
+    public Boolean getIgnoreJSONException() {
+        return ignoreJSONException;
+    }
+
+    public void setIgnoreJSONException(Boolean ignoreJSONException) {
+        this.ignoreJSONException = ignoreJSONException;
+    }
+
+
 }
