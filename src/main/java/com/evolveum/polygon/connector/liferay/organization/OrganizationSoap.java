@@ -656,4 +656,12 @@ public class OrganizationSoap  implements java.io.Serializable {
             _javaType, _xmlType, typeDesc);
     }
 
+    @Override
+    public String toString() {
+        return "OrganizationSoap{" +
+                "organizationId=" + organizationId +
+                ", name='" + name + '\'' +
+                ", parent='" + parentOrganizationId + '\'' +
+                '}';
+    }
 }

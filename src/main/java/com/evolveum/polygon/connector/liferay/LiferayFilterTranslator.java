@@ -42,6 +42,12 @@ public class LiferayFilterTranslator extends AbstractFilterTranslator<LiferayFil
                 lf.byEmailAddress = (String) attr.getValue().get(0);
                 return lf;
             }
+        } else if (LiferayConnector.ATTR_ORG_PARENT_ORGANIZATION_ID.equals(attr.getName())) {
+            if (attr.getValue() != null && attr.getValue().get(0) != null) {
+                LiferayFilter lf = new LiferayFilter();
+                lf.byParentUid = Long.valueOf(String.valueOf(attr.getValue().get(0)));
+                return lf;
+            }
         }
 
         return null;            // not supported

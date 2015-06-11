@@ -28,11 +28,13 @@ import com.evolveum.polygon.connector.liferay.role.RoleServiceSoap;
 import com.evolveum.polygon.connector.liferay.role.RoleServiceSoapServiceLocator;
 import com.evolveum.polygon.connector.liferay.role.RoleSoap;
 import com.evolveum.polygon.connector.liferay.user.*;
+import org.apache.axis.AxisFault;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Element;
 
 import java.net.URL;
 import java.rmi.RemoteException;
@@ -427,6 +429,7 @@ public class TestClient {
         System.out.println("org.getCountryId() = " + org.getCountryId());
         System.out.println("org.getStatusId() = " + org.getStatusId());
         System.out.println("org.getComments() = " + org.getComments());
+        System.out.println("org.isRecursable() = " + org.isRecursable()); // whether the permissions of the organization are to be inherited by its sub-organizations
 
         long rootOrganizationId =0;
         long regionId = 0;
@@ -435,14 +438,146 @@ public class TestClient {
         String comments = null;
         boolean site = false; // create site
         String type = "regular-organization";
-        OrganizationSoap ret = organizationSoap.addOrganization(rootOrganizationId, "testOrg", type, regionId, countryId, statusId, comments, site, null);
-        System.out.println("ret.getOrganizationId() = " + ret.getOrganizationId());
+//        OrganizationSoap ret = organizationSoap.addOrganization(rootOrganizationId, "testOrg", type, regionId, countryId, statusId, comments, site, null);
+//        System.out.println("ret.getOrganizationId() = " + ret.getOrganizationId());
 //
 //
 //        updateOrganization(long organizationId, long parentOrganizationId, String name, String type, long regionId, long countryId, int statusId, String comments, boolean site, ServiceContext serviceContext)
 //
 //        getOrganizationId(long companyId, String name)
 
+        LiferayConfiguration config = new LiferayConfiguration();
+        config.setCompanyId(TestClient.COMPANY_ID);
+        config.setEndpoint("http://localhost:8080/api/axis/");
+        config.setUsername("test");
+        config.setPlainPassword("test");
+
+        LiferayConnector lc = new LiferayConnector();
+        lc.init(config);
+
+        //create
+        ObjectClass objectClass = new ObjectClass(LiferayConnector.ORGANIZATION_NAME);
+        Set<Attribute> attributes = new HashSet<Attribute>();
+        String randName = "test"; //"random"+(new Random()).nextInt();
+        attributes.add(AttributeBuilder.build(Name.NAME, randName));
+
+        try {
+//            Uid userUid = lc.create(objectClass, attributes, null);
+//            LOG.ok("New org Uid is: {0}, name: {1}", userUid.getUidValue(), randName);
+            OrganizationSoap ret = organizationSoap.addOrganization(rootOrganizationId, "testOrg", type, regionId, countryId, statusId, comments, site, null);
+        }
+        catch (Exception e) {
+            System.out.println("e = " + e);
+            System.out.println("e.getMessage() = " + e.getMessage());
+            System.out.println("e.getLocalizedMessage() = " + e.getLocalizedMessage());
+            System.out.println("e.getCause() = " + e.getCause());
+            System.out.println("e.fillInStackTrace() = " + e.fillInStackTrace());
+            System.out.println("e.getStackTrace() = " + e.getStackTrace());
+
+            AxisFault af = (AxisFault) e;
+            HandleAxisFault(af);
+            System.out.println("af.getFaultDetails() = " + af.getFaultDetails());
+            System.out.println("af.getFaultString() = " + af.getFaultString());
+            System.out.println("af.getFaultCode() = " + af.getFaultCode());
+            System.out.println("af.getFaultActor() = " + af.getFaultActor());
+            System.out.println("af.dumpToString() = " + af.dumpToString());
+
+//            e = java.rmi.RemoteException: There is another organization named testOrg
+//            e.getMessage() = java.rmi.RemoteException: There is another organization named testOrg
+//            e.getLocalizedMessage() = java.rmi.RemoteException: There is another organization named testOrg
+//            e.getCause() = null
+//            e.fillInStackTrace() = java.rmi.RemoteException: There is another organization named testOrg
+//            e.getStackTrace() = [Ljava.lang.StackTraceElement;@59d69ffc
+//                    sResult = Error: [0] AxisFault
+//            faultCode: {http://schemas.xmlsoap.org/soap/envelope/}Server.userException
+//            faultSubcode:
+//            faultString: java.rmi.RemoteException: There is another organization named testOrg
+//                faultActor:
+//                faultNode:
+//                faultDetail:
+//                {http://xml.apache.org/axis/}hostname:RUKBIBUFNTB
+//
+//
+//                Stack Trace: null
+//                    af.getFaultDetails() = [Lorg.w3c.dom.Element;@1171fa02
+//                    af.getFaultString() = java.rmi.RemoteException: There is another organization named testOrg
+//                    af.getFaultCode() = {http://schemas.xmlsoap.org/soap/envelope/}Server.userException
+//                    af.getFaultActor() = null
+//                    af.dumpToString() = AxisFault
+//                    faultCode: {http://schemas.xmlsoap.org/soap/envelope/}Server.userException
+//                    faultSubcode:
+//                    faultString: java.rmi.RemoteException: There is another organization named testOrg
+//                        faultActor:
+//                        faultNode:
+//                        faultDetail:
+//                        {http://xml.apache.org/axis/}hostname:RUKBIBUFNTB
+        }
+        
 
     }
+
+    private static String HandleAxisFault(AxisFault af)
+    {
+        String sResult = null;
+
+
+        //defaults
+        String sErrorString = af.dumpToString();
+        String sErrorCode = "0";
+        String sStackTrace = null;
+
+
+        Element[] details = af.getFaultDetails();
+        if(details != null)
+        {
+            for(int i = 0; i < details.length; i++)
+            {
+                String elementName = details[i].getTagName();
+                if(elementName.equals("MWSErrorString"))
+                {
+                    sErrorString = details[i].getAttribute("mws:String");
+                }
+                else if (elementName.equals("MWSErrorCode"))
+                {
+                    sErrorCode = details[i].getAttribute("mws:Code");
+                }
+                else if (elementName.equals("StackTrace"))
+                {
+                    sStackTrace = details[i].getAttribute("mws:String");
+                }
+            }
+        }
+
+        sResult = "Error: [" + sErrorCode + "] " + sErrorString + "\n";
+        sResult += "\n" + "Stack Trace: " + sStackTrace;
+        System.out.println("sResult = " + sResult);
+        return sResult;
+    } // end HandleAxisFault
+
+    @Test
+    public void testTraverse() throws RemoteException {
+
+        List<OrganizationSoap> allOrgs = new LinkedList<OrganizationSoap>();
+        getChild(0l, allOrgs);
+
+        for (OrganizationSoap org : allOrgs) {
+            System.out.println("org = " + org);
+        }
+//        System.out.println("allOrgs = " + allOrgs);
+    }
+
+    private void getChild(long parentOrgId, List<OrganizationSoap> ret) throws RemoteException {
+        OrganizationSoap[] orgs = organizationSoap.getOrganizations(COMPANY_ID, parentOrgId);
+
+        for (OrganizationSoap org : orgs) {
+            ret.add(org);
+        }
+
+        for (OrganizationSoap org : orgs) {
+            getChild(org.getOrganizationId(), ret);
+        }
+    }
+
+
+
 }

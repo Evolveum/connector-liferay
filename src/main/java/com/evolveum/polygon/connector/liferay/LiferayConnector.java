@@ -23,12 +23,11 @@ import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSo
 import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoapServiceLocator;
 import com.evolveum.polygon.connector.liferay.group.GroupServiceSoap;
 import com.evolveum.polygon.connector.liferay.group.GroupServiceSoapServiceLocator;
-import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoap;
-import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoapServiceLocator;
-import com.evolveum.polygon.connector.liferay.organization.OrganizationSoap;
+import com.evolveum.polygon.connector.liferay.organization.*;
 import com.evolveum.polygon.connector.liferay.role.RoleServiceSoap;
 import com.evolveum.polygon.connector.liferay.role.RoleServiceSoapServiceLocator;
 import com.evolveum.polygon.connector.liferay.user.*;
+import com.evolveum.polygon.connector.liferay.user.ServiceContext;
 import org.apache.axis.AxisProperties;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
@@ -40,15 +39,15 @@ import org.identityconnectors.framework.common.exceptions.UnknownUidException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.Configuration;
-import org.identityconnectors.framework.spi.Connector;
 import org.identityconnectors.framework.spi.ConnectorClass;
+import org.identityconnectors.framework.spi.PoolableConnector;
 import org.identityconnectors.framework.spi.operations.*;
 
 import java.rmi.RemoteException;
 import java.util.*;
 
 @ConnectorClass(displayNameKey = "liferay.connector.display", configurationClass = LiferayConfiguration.class)
-public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, DeleteOp, UpdateOp, SearchOp<LiferayFilter>, SyncOp {
+public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, CreateOp, DeleteOp, UpdateOp, SearchOp<LiferayFilter>, SyncOp {
 
     private static final Log LOG = Log.getLog(LiferayConnector.class);
 
@@ -137,6 +136,28 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     // not implemented now
 //    private static final String ATTR_USER_GROUP_ROLES = "userGroupRoles";
 
+
+    public static final String ORGANIZATION_NAME = "Organization";
+    // organization attributes
+    private static final String ATTR_ORG_NAME = Name.NAME; //"name";
+    private static final String ATTR_ORG_TYPE = "type";
+    private static final String ATTR_ORG_RECURSABLE = "recursable";
+    public static final String ATTR_ORG_PARENT_ORGANIZATION_ID = "parentOrganizationId";
+    private static final String ATTR_ORG_REGION_ID = "regionId";
+    private static final String ATTR_ORG_COUNTRY_ID = "countryId";
+    private static final String ATTR_ORG_COMMENTS = "comments";
+    private static final String ATTR_ORG_STATUS_ID = "statusId";
+
+    // organization defaults
+    private static final String ATTR_ORG_TYPE_DEFAULT = "regular-organization";
+    private static final boolean ATTR_ORG_RECURSABLE_DEFAULT = true;
+    private static final long ATTR_ORG_ROOT_ORGANIZATION_ID = 0;
+    private static final long ATTR_ORG_REGION_ID_DEFAULT = 0;
+    private static final long ATTR_ORG_COUNTRY_ID_DEFAULT = 0;
+    private static final int ATTR_ORG_STATUS_ID_DEFAULT = 12017; //ListTypeConstants.ORGANIZATION_STATUS_DEFAULT
+    private static final String ATTR_ORG_COMMENTS_DEFAULT = null;
+
+
     private LiferayConfiguration configuration;
 
     private UserServiceSoap userService;
@@ -207,7 +228,7 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         SchemaBuilder builder = new SchemaBuilder(LiferayConnector.class);
 
         builder.defineObjectClass(schemaAccount());
-        // other schemas ?
+        builder.defineObjectClass(schemaOrganization());
 
         return builder.build();
     }
@@ -264,7 +285,8 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         attributeRoleIdsBuilder.setMultiValued(true);
         objClassBuilder.addAttributeInfo(attributeRoleIdsBuilder.build());
 
-        AttributeInfoBuilder attributeOrganizationIdsBuilder = new AttributeInfoBuilder(ATTR_ORGANIZATION_IDS, Long.class);
+        // Long --> String, because association uid require String...
+        AttributeInfoBuilder attributeOrganizationIdsBuilder = new AttributeInfoBuilder(ATTR_ORGANIZATION_IDS, String.class);
         attributeOrganizationIdsBuilder.setReturnedByDefault(false); // slower queries
         attributeOrganizationIdsBuilder.setMultiValued(true);
         objClassBuilder.addAttributeInfo(attributeOrganizationIdsBuilder.build());
@@ -330,11 +352,28 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         return objClassBuilder.build();
     }
 
+    private ObjectClassInfo schemaOrganization() {
+        ObjectClassInfoBuilder objClassBuilder = new ObjectClassInfoBuilder();
+        objClassBuilder.setType(ORGANIZATION_NAME);
+
+        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ORG_TYPE).build());
+        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ORG_RECURSABLE, Boolean.class).build());
+        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ORG_PARENT_ORGANIZATION_ID, String.class).build());
+        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ORG_REGION_ID, Long.class).build());
+        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ORG_COUNTRY_ID, Long.class).build());
+        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ORG_STATUS_ID, Integer.class).build());
+        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_ORG_COMMENTS).build());
+
+        return objClassBuilder.build();
+    }
+
     @Override
     public Uid create(ObjectClass objectClass, Set<Attribute> attributes, OperationOptions options) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {    // __ACCOUNT__
             return createUser(attributes);
-        } else {    // Org alebo Organization -> CustomOrgObjectClass
+        } else if (objectClass.is(ORGANIZATION_NAME)) {    // Organization -> CustomOrgObjectClass
+                return createOrganization(attributes);
+        } else {
             throw new UnsupportedOperationException("Unsupported object class " + objectClass);
         }
     }
@@ -515,12 +554,53 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         }
     }
 
+    private Uid createOrganization(Set<Attribute> attributes) {
+        LOG.ok("createOrganization attributes: {0}", attributes);
+        String name = getStringAttr(attributes, ATTR_ORG_NAME);
+        if (StringUtil.isBlank(name)) {
+            throw new InvalidAttributeValueException("Missing mandatory attribute "+ATTR_ORG_NAME);
+        }
+
+        String type = getStringAttr(attributes, ATTR_ORG_TYPE, ATTR_ORG_TYPE_DEFAULT, true);
+        String parentOrganization = getStringAttr(attributes, ATTR_ORG_PARENT_ORGANIZATION_ID, String.valueOf(ATTR_ORG_ROOT_ORGANIZATION_ID), true);
+        long parentOrganizationId = Long.valueOf(parentOrganization);
+        long regionId = getAttr(attributes, ATTR_ORG_REGION_ID, Long.class, ATTR_ORG_REGION_ID_DEFAULT, true);
+        long countryId = getAttr(attributes, ATTR_ORG_COUNTRY_ID, Long.class, ATTR_ORG_COUNTRY_ID_DEFAULT, true);
+        int statusId = getAttr(attributes, ATTR_ORG_STATUS_ID, Integer.class, ATTR_ORG_STATUS_ID_DEFAULT, true);
+        String comments = getStringAttr(attributes, ATTR_ORG_COMMENTS, ATTR_ORG_COMMENTS_DEFAULT);
+        boolean recursable = getAttr(attributes, ATTR_ORG_RECURSABLE, Boolean.class, ATTR_ORG_RECURSABLE_DEFAULT, true);
+
+        try {
+            LOG.ok("addOrganization: parentOrganizationId: {0}, name: {1}, type: {2}, regionId: {3}, countryId: {4}, statusId: {5}, comments: {6}, recursable: {7}",
+                    parentOrganizationId, name, type, regionId, countryId, statusId, comments, recursable);
+
+            OrganizationSoap newOrg = organizationService.addOrganization(parentOrganizationId, name, type, recursable, regionId, countryId, statusId, comments, configuration.getAssociateOrganizationWithMainSite(), null);
+
+            LOG.ok("addOrganization: new ID: {0}", newOrg.getOrganizationId());
+
+            return toUid(newOrg.getOrganizationId());
+        } catch (java.rmi.RemoteException e) {
+            if (e.getMessage().contains("There is another organization named")) {
+                throw new AlreadyExistsException(e.getMessage());
+            }
+            // if(e instanceof AxisFault){ -- Liferay not send server exception to client :(((
+            throw new ConnectorIOException(e.getMessage(), e);
+        }
+    }
+
     @Override
     public void delete(ObjectClass objectClass, Uid uid, OperationOptions options) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
             try {
-                LOG.ok("delete, Uid: {0}", uid);
+                LOG.ok("delete user, Uid: {0}", uid);
                 userService.deleteUser(toLong(uid));
+            } catch (java.rmi.RemoteException e) {
+                throw new ConnectorIOException(e.getMessage(), e);
+            }
+        } else if (objectClass.is(ORGANIZATION_NAME)) {
+            try {
+                LOG.ok("delete organization, Uid: {0}", uid);
+                organizationService.deleteOrganization(toLong(uid));
             } catch (java.rmi.RemoteException e) {
                 throw new ConnectorIOException(e.getMessage(), e);
             }
@@ -533,6 +613,8 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     public Uid update(ObjectClass objectClass, Uid uid, Set<Attribute> attributes, OperationOptions options) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
             return updateUser(uid, attributes);
+        } else if (objectClass.is(ORGANIZATION_NAME)) {
+            return updateOrganization(uid, attributes);
         } else {
             throw new UnsupportedOperationException("Unsupported object class " + objectClass);
         }
@@ -683,6 +765,53 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         return uid;
     }
 
+    private Uid updateOrganization(Uid uid, Set<Attribute> attributes) {
+        LOG.ok("updateOrganization, Uid: {0}, attributes: {1}", uid, attributes);
+        if (attributes == null || attributes.isEmpty()) {
+            LOG.ok("update ignored, nothing changed");
+            return uid;
+        }
+
+        Long targetOrgId = toLong(uid);
+
+        OrganizationSoap origOrg;
+        try {
+            origOrg = organizationService.getOrganization(targetOrgId);
+        } catch (java.rmi.RemoteException e) {
+            throw new ConnectorIOException(e.getMessage(), e);
+        }
+        if (origOrg == null) {
+            throw new UnknownUidException("Organization with ID " + targetOrgId + " does not exist");
+        }
+
+        String name = getStringAttr(attributes, ATTR_ORG_NAME, origOrg.getName());
+        if (StringUtil.isBlank(name)) {
+            throw new InvalidAttributeValueException("Missing mandatory attribute "+ATTR_ORG_NAME);
+        }
+
+        String type = getStringAttr(attributes, ATTR_ORG_TYPE, origOrg.getType());
+        String parentOrganization = getStringAttr(attributes, ATTR_ORG_PARENT_ORGANIZATION_ID, String.valueOf(origOrg.getParentOrganizationId()), true);
+        long parentOrganizationId = Long.valueOf(parentOrganization);
+        long regionId = getAttr(attributes, ATTR_ORG_REGION_ID, Long.class, origOrg.getRegionId());
+        long countryId = getAttr(attributes, ATTR_ORG_COUNTRY_ID, Long.class, origOrg.getCountryId());
+        int statusId = getAttr(attributes, ATTR_ORG_STATUS_ID, Integer.class, origOrg.getStatusId());
+        String comments = getStringAttr(attributes, ATTR_ORG_COMMENTS, origOrg.getComments());
+        boolean recursable = getAttr(attributes, ATTR_ORG_RECURSABLE, Boolean.class, origOrg.isRecursable());
+
+        try {
+            LOG.ok("updateOrganization: parentOrganizationId: {0}, name: {1}, type: {2}, regionId: {3}, countryId: {4}, statusId: {5}, comments: {6}, organizationId: {7}, recursable: {8}",
+                    parentOrganizationId, name, type, regionId, countryId, statusId, comments, origOrg.getOrganizationId(), recursable);
+
+            organizationService.updateOrganization(origOrg.getOrganizationId(), parentOrganizationId, name, type, recursable, regionId, countryId, statusId, comments, configuration.getAssociateOrganizationWithMainSite(), null);
+
+        } catch (java.rmi.RemoteException e) {
+            throw new ConnectorIOException(e.getMessage(), e);
+        }
+
+        return uid;
+    }
+
+
     @Override
     public FilterTranslator<LiferayFilter> createFilterTranslator(ObjectClass objectClass, OperationOptions options) {
         return new LiferayFilterTranslator();
@@ -730,8 +859,51 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                             LOG.ok("executeQuery: processing {0}. of {1} users", count, userCount);
                         }
                         ConnectorObject connectorObject = convertUserToConnectorObject(user, contactsToGet, rolesToGet, organizationsToGet, customFieldsToGet);
-                        handler.handle(connectorObject);
+                        boolean finish = !handler.handle(connectorObject);
+                        if (finish)
+                            break;
                     }
+                }
+
+            } catch (java.rmi.RemoteException e) {
+                throw new ConnectorIOException(e.getMessage(), e);
+            }
+        } else if (objectClass.is(ORGANIZATION_NAME)) {
+            try {
+
+                LOG.ok("executeQuery: {0}, options: {1}", query, options);
+                // find by org name
+                if (query != null && query.byName != null) {
+                    long orgId = organizationService.getOrganizationId(configuration.getCompanyId(), query.byName);
+                    OrganizationSoap org = organizationService.getOrganization(orgId);
+                    ConnectorObject connectorObject = convertOrganizationToConnectorObject(org);
+                    handler.handle(connectorObject);
+
+                    //find by Uid (org Primary Key)
+                } else if (query != null && query.byUid != null) {
+                    OrganizationSoap org = organizationService.getOrganization(query.byUid);
+                    ConnectorObject connectorObject = convertOrganizationToConnectorObject(org);
+                    handler.handle(connectorObject);
+
+                    //find by parentUid (user Primary Key)
+                } else if (query != null && query.byParentUid != null) {
+                    OrganizationSoap[] orgs = organizationService.getOrganizations(configuration.getCompanyId(), query.byParentUid);
+                    int count = 0;
+                    for (OrganizationSoap org : orgs) {
+                        if (++count % 10 == 0) {
+                            LOG.ok("executeQuery: processing {0}. of {1} organizations", count, orgs.length);
+                        }
+                        ConnectorObject connectorObject = convertOrganizationToConnectorObject(org);
+                        boolean finish = !handler.handle(connectorObject);
+                        if (finish)
+                            break;
+                    }
+
+                    // find all - traverse
+                } else {
+
+                    List<OrganizationSoap> allOrgs = new LinkedList<OrganizationSoap>();
+                    getChilds(ATTR_ORG_ROOT_ORGANIZATION_ID, allOrgs, handler);
                 }
 
             } catch (java.rmi.RemoteException e) {
@@ -739,6 +911,23 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
             }
         } else {
             throw new UnsupportedOperationException("Unsupported object class " + objectClass);
+        }
+    }
+
+    private void getChilds(long parentOrgId, List<OrganizationSoap> ret, ResultsHandler handler) throws RemoteException {
+        LOG.ok("reading Suborganizations for ID: {0}, actualSize: {1} ", parentOrgId, ret.size());
+        OrganizationSoap[] orgs = organizationService.getOrganizations(configuration.getCompanyId(), parentOrgId);
+
+        for (OrganizationSoap org : orgs) {
+            ret.add(org);
+            ConnectorObject connectorObject = convertOrganizationToConnectorObject(org);
+            boolean finish = !handler.handle(connectorObject);
+            if (finish)
+                return;
+        }
+
+        for (OrganizationSoap org : orgs) {
+            getChilds(org.getOrganizationId(), ret, handler);
         }
     }
 
@@ -804,6 +993,9 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
     public void sync(ObjectClass objectClass, SyncToken token, SyncResultsHandler handler, OperationOptions options) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {    // __ACCOUNT__
             syncAccount(token, handler, options);
+        }else if (objectClass.is(ORGANIZATION_NAME)) {
+            //TODO: implement when needed
+            throw new UnsupportedOperationException("Synchronization Organizations not supported now");
         } else {
             throw new UnsupportedOperationException("Unsupported object class " + objectClass);
         }
@@ -1001,9 +1193,9 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         }
 
         if (organizations != null) {
-            List<Long> organizationsIds = new ArrayList<Long>(organizations.length);
+            List<String> organizationsIds = new ArrayList<String>(organizations.length);
             for (OrganizationSoap organization : organizations) {
-                organizationsIds.add(organization.getOrganizationId());
+                organizationsIds.add(String.valueOf(organization.getOrganizationId()));
             }
 
             builder.addAttribute(AttributeBuilder.build(ATTR_ORGANIZATION_IDS, organizationsIds));
@@ -1040,6 +1232,28 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                         "\n\torganizations: {5}," +
                         "\n\tcustomValues: {6}",
                 user.getUserId(), user.getScreenName(), enable, connectorObject, liferayRoles, toString(organizations), customValues);
+        return connectorObject;
+    }
+
+    private ConnectorObject convertOrganizationToConnectorObject(OrganizationSoap org) throws RemoteException {
+
+        ConnectorObjectBuilder builder = new ConnectorObjectBuilder();
+        builder.setUid(toUid(org.getOrganizationId()));
+        builder.setName(org.getName());
+        addAttr(builder, ATTR_ORG_TYPE, org.getType());
+        addAttr(builder, ATTR_ORG_PARENT_ORGANIZATION_ID, String.valueOf(org.getParentOrganizationId()));
+        addAttr(builder, ATTR_ORG_RECURSABLE, org.isRecursable());
+        addAttr(builder, ATTR_ORG_REGION_ID, org.getRegionId());
+        addAttr(builder, ATTR_ORG_COUNTRY_ID, org.getCountryId());
+        addAttr(builder, ATTR_ORG_STATUS_ID, org.getStatusId());
+        addAttr(builder, ATTR_ORG_COMMENTS, org.getComments());
+
+        ConnectorObject connectorObject = builder.build();
+        LOG.ok("convertOrganizationToConnectorObject, organization: {0}:{1}, type: {2}, " +
+                        "parentId: {3}, regionId: {4}, countryId: {5}, status: {6}, comment: {7}, Recursable: {8}",
+                org.getOrganizationId(), org.getName(), org.getType(), org.getParentOrganizationId(), org.getRegionId()
+                , org.getCountryId(), org.getStatusId(), org.getComments(), org.isRecursable());
+
         return connectorObject;
     }
 
@@ -1130,10 +1344,16 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
                 }
                 long[] ret = new long[vals.size()];
                 for (int i = 0; i < vals.size(); i++) {
-                    Long val = (Long) vals.get(i);
-                    if (val == null)
+                    Object valAsObject = vals.get(i);
+                    if (valAsObject == null)
                         throw new InvalidAttributeValueException("Value " + null + " must be not null for attribute " + attrName);
 
+                    Long val;
+                    if (valAsObject instanceof String) {
+                        val = Long.parseLong((String) valAsObject);
+                    } else {
+                        val = (Long) valAsObject;
+                    }
                     ret[i] = val;
                 }
                 return ret;
@@ -1194,4 +1414,9 @@ public class LiferayConnector implements Connector, TestOp, SchemaOp, CreateOp, 
         return callExpando;
     }
 
+    @Override
+    public void checkAlive() {
+        test();
+        // TODO quicker test?
+    }
 }

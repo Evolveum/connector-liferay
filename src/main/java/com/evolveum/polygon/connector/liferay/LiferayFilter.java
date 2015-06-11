@@ -6,6 +6,7 @@ package com.evolveum.polygon.connector.liferay;
 public class LiferayFilter {
     public String byName;
     public Long byUid;
+    public Long byParentUid;
     public String byEmailAddress;
 
     @Override
@@ -13,6 +14,7 @@ public class LiferayFilter {
         return "LiferayFilter{" +
                 "byName='" + byName + '\'' +
                 ", byUid=" + byUid +
+                ", byParentUid=" + byParentUid +
                 ", byEmailAddress='" + byEmailAddress + '\'' +
                 '}';
     }

@@ -21,7 +21,6 @@ public class LiferayRoles {
     List<LiferayRoleGroup> values = new LinkedList<LiferayRoleGroup>();
     // if roles not null, modify
     boolean modifyRoles = false;
-    private long[] sites;
 
     public LiferayRoles(Set<Attribute> attributes, String attrName, String[] defaultVals, RoleServiceSoap roleService, GroupServiceSoap groupService, Long companyId) throws RemoteException {
         List<Object> roles = null;

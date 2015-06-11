@@ -49,6 +49,8 @@ public class LiferayConfiguration extends AbstractConfiguration {
 
     private Boolean ignoreJSONException = false;
 
+    private boolean associateOrganizationWithMainSite = false;
+
     @Override
     public void validate() {
         if (isBlank(endpoint))
@@ -127,6 +129,8 @@ public class LiferayConfiguration extends AbstractConfiguration {
     }
 
     public URL getUrl(String portalService) throws MalformedURLException {
+        if (portalService==null)
+            return null;
         String url = endpoint.replace("//", "//" + username + ":" + getPlainPassword() + "@");
         return new URL(url + portalService);
     }
@@ -232,6 +236,16 @@ public class LiferayConfiguration extends AbstractConfiguration {
 
     public void setIgnoreJSONException(Boolean ignoreJSONException) {
         this.ignoreJSONException = ignoreJSONException;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "liferay.config.associateOrganizationWithMainSite",
+            helpMessageKey = "liferay.config.associateOrganizationWithMainSite.help")
+    public boolean getAssociateOrganizationWithMainSite() {
+        return associateOrganizationWithMainSite;
+    }
+
+    public void setAssociateOrganizationWithMainSite(boolean associateOrganizationWithMainSite) {
+        this.associateOrganizationWithMainSite = associateOrganizationWithMainSite;
     }
 
 
