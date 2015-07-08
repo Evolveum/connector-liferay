@@ -46,6 +46,9 @@ import org.identityconnectors.framework.spi.operations.*;
 import java.rmi.RemoteException;
 import java.util.*;
 
+/**
+ * @author gpalos
+ */
 @ConnectorClass(displayNameKey = "liferay.connector.display", configurationClass = LiferayConfiguration.class)
 public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, CreateOp, DeleteOp, UpdateOp, SearchOp<LiferayFilter>, SyncOp {
 

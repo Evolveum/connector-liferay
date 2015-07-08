@@ -29,6 +29,9 @@ import java.util.*;
 
 import static org.identityconnectors.common.StringUtil.isBlank;
 
+/**
+ * @author gpalos
+ */
 public class LiferayConfiguration extends AbstractConfiguration {
 
     private static final Log LOG = Log.getLog(LiferayConfiguration.class);
