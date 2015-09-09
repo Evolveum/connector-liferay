@@ -29,6 +29,8 @@ import com.evolveum.polygon.connector.liferay.role.RoleServiceSoapServiceLocator
 import com.evolveum.polygon.connector.liferay.user.*;
 import com.evolveum.polygon.connector.liferay.user.ServiceContext;
 import org.apache.axis.AxisProperties;
+import org.apache.axis.client.Call;
+import org.apache.axis.client.Stub;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
@@ -133,7 +135,7 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
     private static final String ATTR_SKYPE_SN = "skypeSn";
     private static final String ATTR_TWITTER_SN = "twitterSn";
     private static final String ATTR_YM_SN = "ymSn";
-    // not implemented now
+    // implemented over attribute 'roles' with support Site and Organization roles also
 //    private static final String ATTR_USER_GROUP_ROLES = "userGroupRoles";
 
 
@@ -191,11 +193,17 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
 
         try {
             userService = locatorUser.getPortal_UserService(((LiferayConfiguration) configuration).getUrl(SERVICE_USERSERVICE));
+            this.configuration.hackAsixAuth((Stub) userService);
             contactService = locatorContact.getPortal_ContactService(((LiferayConfiguration) configuration).getUrl(SERVICE_CONTACTSERVICE));
+            this.configuration.hackAsixAuth((Stub) contactService);
             roleService = locatorRole.getPortal_RoleService(((LiferayConfiguration) configuration).getUrl(SERVICE_ROLESERVICE));
+            this.configuration.hackAsixAuth((Stub) roleService);
             organizationService = locatorOrganization.getPortal_OrganizationService(((LiferayConfiguration) configuration).getUrl(SERVICE_ORGANIZATIONSERVICE));
+            this.configuration.hackAsixAuth((Stub) organizationService);
             expandoValueService = locatorExpandoValue.getPortlet_Expando_ExpandoValueService(((LiferayConfiguration) configuration).getUrl(SERVICE_EXPANDOVALUESERVICE));
+            this.configuration.hackAsixAuth((Stub) expandoValueService);
             groupService = locatorGroup.getPortal_GroupService(((LiferayConfiguration) configuration).getUrl(SERVICE_GROUPSERVICE));
+            this.configuration.hackAsixAuth((Stub) groupService);
         } catch (Exception e) {
             LOG.error(e, "Connection failed to: " + ((LiferayConfiguration) configuration).getEndpoint());
             throw new ConnectorIOException(e.getMessage(), e);
@@ -334,8 +342,6 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
         objClassBuilder.addAttributeInfo(attributeYmSnBuilder.build());
 
         objClassBuilder.addAttributeInfo(OperationalAttributeInfos.ENABLE); //enabled/disabled - Administrative Status
-        //not implemented now:
-//        objClassBuilder.addAttributeInfo(new AttributeInfoBuilder(ATTR_USER_GROUP_ROLES).build()); //List<UserGroupRole>
 
         // __PASSWORD__ attribute
         objClassBuilder.addAttributeInfo(OperationalAttributeInfos.PASSWORD);

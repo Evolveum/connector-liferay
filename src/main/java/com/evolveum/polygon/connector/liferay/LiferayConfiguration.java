@@ -16,6 +16,8 @@
 
 package com.evolveum.polygon.connector.liferay;
 
+import org.apache.axis.client.Call;
+import org.apache.axis.client.Stub;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
@@ -72,6 +74,13 @@ public class LiferayConfiguration extends AbstractConfiguration {
             throw new ConfigurationException("customField not configured correctly, format is type:fieldName, for example 'java.util.Date:createdOn'");
 
     }
+
+    public void hackAsixAuth(Stub service) {
+        // asix not support e-mail as encoded login in auth URL, we need to fix it
+        service._setProperty(Call.USERNAME_PROPERTY, getUsername());
+        service._setProperty(Call.PASSWORD_PROPERTY, getPlainPassword());
+    }
+
 
     private String getPlainPassword() {
         final StringBuilder sb = new StringBuilder();
@@ -131,8 +140,7 @@ public class LiferayConfiguration extends AbstractConfiguration {
     public URL getUrl(String portalService) throws MalformedURLException {
         if (portalService==null)
             return null;
-        String url = endpoint.replace("//", "//" + username + ":" + getPlainPassword() + "@");
-        return new URL(url + portalService);
+        return new URL(endpoint + portalService);
     }
 
     void setPlainPassword(String plainPassword) {

@@ -78,6 +78,16 @@ public class LiferayRoles {
                 values.add(lrg);
             }
         }
+
+        // organization roles
+        GroupSoap[] organizationGroups = groupService.getUserOrganizationsGroups(userId, 0, -1);
+        for (GroupSoap organizationGroup : organizationGroups) {
+            RoleSoap[] orgRoles = roleService.getUserGroupRoles(userId, organizationGroup.getGroupId());
+            for (RoleSoap roleSoap : orgRoles) {
+                LiferayRoleGroup lrg = new LiferayRoleGroup(roleSoap, LiferayRoleGroup.TYPE_ORGANIZATION, organizationGroup.getGroupId(), organizationGroup.getName());
+                values.add(lrg);
+            }
+        }
     }
 
     public long[] getRegularRoles() {

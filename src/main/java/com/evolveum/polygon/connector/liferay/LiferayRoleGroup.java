@@ -32,9 +32,10 @@ import java.util.Map;
 public class LiferayRoleGroup {
     private static final Log LOG = Log.getLog(LiferayRoleGroup.class);
 
-    static final int TYPE_REGULAR = 1;       // see com.liferay.portal.model.RoleConstants, label = 'regular' in GUI
-    static final int TYPE_SITE = 2;          // label = 'site' in GUI
-    static final int TYPE_ORGANIZATION = 3;  // not implemented yet
+    static final int TYPE_REGULAR = 1;      // see com.liferay.portal.model.RoleConstants, label = 'regular' in GUI
+    static final int TYPE_SITE = 2;         // label = 'site' in GUI
+    // if you user Organization roles, DO NOT forget assign user to Organization also over ri:organizationIds attribute
+    static final int TYPE_ORGANIZATION = 3; // label = 'organization' in GUI
 
     private static final String DELIMITER = ","; // Role name and Group name is not contains ',' (not valid char in name)
 
@@ -60,10 +61,8 @@ public class LiferayRoleGroup {
                     throw new InvalidAttributeValueException("value '" + this.value + "' must have 1 or 3 attributes inside delimited with: '" + DELIMITER + "'");
 
                 roleType = Integer.parseInt(atts[1]);
-                if (roleType != TYPE_REGULAR && roleType != TYPE_SITE)
+                if (roleType != TYPE_REGULAR && roleType != TYPE_SITE  && roleType != TYPE_ORGANIZATION)
                     throw new InvalidAttributeValueException("not supported Role Type '" + roleType + "' in value: " + this.value);
-
-                roleType = Integer.parseInt(atts[1]);
 
                 parseRole(atts[0]);
                 parseGroup(atts[2]);

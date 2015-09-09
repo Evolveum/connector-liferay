@@ -21,6 +21,9 @@ import com.evolveum.polygon.connector.liferay.contact.ContactServiceSoapServiceL
 import com.evolveum.polygon.connector.liferay.contact.ContactSoap;
 import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoap;
 import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.group.GroupServiceSoap;
+import com.evolveum.polygon.connector.liferay.group.GroupServiceSoapServiceLocator;
+import com.evolveum.polygon.connector.liferay.group.GroupSoap;
 import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoap;
 import com.evolveum.polygon.connector.liferay.organization.OrganizationServiceSoapServiceLocator;
 import com.evolveum.polygon.connector.liferay.organization.OrganizationSoap;
@@ -29,6 +32,8 @@ import com.evolveum.polygon.connector.liferay.role.RoleServiceSoapServiceLocator
 import com.evolveum.polygon.connector.liferay.role.RoleSoap;
 import com.evolveum.polygon.connector.liferay.user.*;
 import org.apache.axis.AxisFault;
+import org.apache.axis.client.Call;
+import org.apache.axis.client.Stub;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.*;
@@ -36,8 +41,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Element;
 
+import java.net.Authenticator;
+import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TestClient {
@@ -45,23 +56,27 @@ public class TestClient {
     private static final Log LOG = Log.getLog(TestClient.class);
 
     public static final long COMPANY_ID = 20155L; // id in my instance
-    public static final String HOST = "http://test:test@localhost:8080/api/axis/";
+    //public static final String HOST = "http://test:test@localhost:8080/api/axis/";
+//    public static final String HOST = "http://midpoint%40liferay.sk:heslo123@localhost:4480/api/axis/";
+//    public static final String HOST = "http://midpoint@liferay.sk:heslo123@localhost:4480/api/axis/";
+    public static final String HOST = "http://localhost:4480/api/axis/";
 
     private static String URL_USER_SERVICE = HOST + LiferayConnector.SERVICE_USERSERVICE;
     private static String URL_CONTACT_SERVICE = HOST + LiferayConnector.SERVICE_CONTACTSERVICE;
     private static String URL_EXPANDOVALUE_SERVICE = HOST + LiferayConnector.SERVICE_EXPANDOVALUESERVICE;
     private static String URL_ROLE_SERVICE = HOST + LiferayConnector.SERVICE_ROLESERVICE;
     private static String URL_ORGANIZATION_SERVICE = HOST + LiferayConnector.SERVICE_ORGANIZATIONSERVICE;
+    private static String URL_GROUP_SERVICE = HOST + LiferayConnector.SERVICE_GROUPSERVICE;
     private static UserServiceSoap userSoap;
     private static ContactServiceSoap contactSoap;
     private static RoleServiceSoap roleSoap;
     private static ExpandoValueServiceSoap expandoValueSoap;
     private static OrganizationServiceSoap organizationSoap;
+    private static GroupServiceSoap groupSoap;
 
 
     @BeforeClass
     public static void setUp() throws Exception {
-
         // Locate the User service
         UserServiceSoapServiceLocator locatorUser = new UserServiceSoapServiceLocator();
         userSoap = locatorUser.getPortal_UserService(new URL(URL_USER_SERVICE));
@@ -77,6 +92,109 @@ public class TestClient {
 
         OrganizationServiceSoapServiceLocator locatorOrganization = new OrganizationServiceSoapServiceLocator();
         organizationSoap = locatorOrganization.getPortal_OrganizationService(new URL(URL_ORGANIZATION_SERVICE));
+
+        GroupServiceSoapServiceLocator locatorGroup = new GroupServiceSoapServiceLocator();
+        groupSoap = locatorGroup.getPortal_GroupService(new URL(URL_GROUP_SERVICE));
+
+    }
+
+    @Test
+    public void testOrganizationRoles() throws Exception {
+        String user = "midpoint@liferay.sk";
+        String password = "XXX";
+
+        ((Stub)userSoap)._setProperty(Call.USERNAME_PROPERTY, user);
+        ((Stub)userSoap)._setProperty(Call.PASSWORD_PROPERTY, password);
+
+        ((Stub)organizationSoap)._setProperty(Call.USERNAME_PROPERTY, user);
+        ((Stub)organizationSoap)._setProperty(Call.PASSWORD_PROPERTY, password);
+
+        ((Stub)roleSoap)._setProperty(Call.USERNAME_PROPERTY, user);
+        ((Stub)roleSoap)._setProperty(Call.PASSWORD_PROPERTY, password);
+
+        ((Stub)groupSoap)._setProperty(Call.USERNAME_PROPERTY, user);
+        ((Stub)groupSoap)._setProperty(Call.PASSWORD_PROPERTY, password);
+
+
+        UserSoap u = userSoap.getUserByEmailAddress(COMPANY_ID, "midpoint@liferay.sk");
+        System.out.println("User: " + u);
+
+        int userCount = userSoap.getCompanyUsersCount(COMPANY_ID);
+        System.out.println("User count: " + userCount);
+
+        long userId = 23644; //mspRedaktorId = 23701; mspadmin=23644
+
+        GroupSoap orgGroup = groupSoap.getGroup(COMPANY_ID, "MSP LFR_ORGANIZATION");
+        System.out.println("orgGroup.getPrimaryKey() = " + orgGroup.getPrimaryKey());
+        System.out.println("orgGroup.getName() = " + orgGroup.getName());
+        
+        GroupSoap[] orgGroups = groupSoap.getUserOrganizationsGroups(userId, 0, -1);
+        for (GroupSoap og : orgGroups) {
+            System.out.println("og.getName() = " + og.getName());
+            System.out.println("og.getType() = " + og.getType());
+            System.out.println("og.getPrimaryKey() = " + og.getPrimaryKey());
+
+            RoleSoap[] orgRoles = roleSoap.getUserGroupRoles(userId, og.getGroupId());
+            for (RoleSoap roleSoap : orgRoles) {
+                System.out.println("    roleSoap.getName() = " + roleSoap.getName());
+                System.out.println("    roleSoap.getRoleId() = " + roleSoap.getRoleId());
+                System.out.println("    roleSoap.getType() = " + roleSoap.getType());
+            }
+        }
+        
+
+        OrganizationSoap[] orgs = organizationSoap.getOrganizations(COMPANY_ID, 0/*root*/);
+        for (OrganizationSoap org : orgs) {
+            System.out.println("org.getType() = " + org.getType());
+            System.out.println("org.getName() = " + org.getName());
+            System.out.println("org.getOrganizationId() = " + org.getOrganizationId());
+
+
+            RoleSoap[] orgRoles = roleSoap.getUserGroupRoles(userId, org.getOrganizationId());
+            for (RoleSoap role : orgRoles) {
+                System.out.println("    role.getRoleId() = " + role.getRoleId());
+                System.out.println("    role.getName() = " + role.getName());
+            }
+        }
+
+        //long[] ogrs = new long[] {23738}; // MSP
+        long[] ogrs = new long[] {}; // MSP
+        long[] roleIds = new long[] {};// bez regular role
+        long siteId = 23739;//MSP LFR_ORGANIZATION
+        long[] groupIds = new long[] {siteId};
+        long[] userGroupIds = null;
+
+        UserGroupRoleSoap[] userGroupRoles = new UserGroupRoleSoap[1];
+        UserGroupRoleSoap ugr = new UserGroupRoleSoap();
+        long userID = 24700;
+        ugr.setUserId(userID);
+        ugr.setGroupId(siteId);
+        ugr.setRoleId(20167); // Organization Administrator
+        userGroupRoles[0] = ugr;
+
+        userSoap.updateUser(userID, null, null, null, false, "", "", "mspadminevo",
+                "mspadmin@evolveum.com", 1l, "", "", "", "", "",
+                "msp", "", "Admin evolveum", 0, 0, true, 3, 22, 1981,
+                "", "", "", "", "", "", "", "", "", "",
+                "", groupIds, ogrs, roleIds, userGroupRoles, userGroupIds, new ServiceContext());
+
+//        LiferayConfiguration config = new LiferayConfiguration();
+//        config.setCompanyId(TestClient.COMPANY_ID);
+//        config.setEndpoint(TestClient.HOST);
+//        config.setUsername(user);
+//        config.setPlainPassword(password);
+//
+//        LiferayConnector lc = new LiferayConnector();
+//        lc.init(config);
+//        lc.test();
+//        ObjectClass objectClass = new ObjectClass(ObjectClass.ACCOUNT_NAME);
+//        Set<Attribute> attributesUpdate = new HashSet<Attribute>();
+//        attributesUpdate.add(AttributeBuilder.build("roles", "Organization Administrator,3,MSP LFR_ORGANIZATION"));
+//
+//        Uid userUid = new Uid("24700");
+//        lc.update(objectClass, userUid, attributesUpdate, null);
+
+
     }
 
     @Test
@@ -128,6 +246,7 @@ public class TestClient {
         // delete new user
         userSoap.deleteUser(newUser.getPrimaryKey());
         LOG.ok("user deleted: " + newUser.getPrimaryKey() + ": " + newUser.getScreenName());
+
     }
 
     @Test
@@ -512,7 +631,7 @@ public class TestClient {
 //                        faultDetail:
 //                        {http://xml.apache.org/axis/}hostname:RUKBIBUFNTB
         }
-        
+
 
     }
 
@@ -579,5 +698,23 @@ public class TestClient {
     }
 
 
+    @Test
+    public void testParseDate() throws RemoteException, ParseException {
 
+        String target = "04.06.1975";
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+        Date result =  df.parse(target);
+        System.out.println("result = " + result);
+    }
+
+    @Test
+    public void testSplit() throws RemoteException, ParseException {
+
+        String uid = "ROF_EXP_CAT|1|2015-01-07 00:00:00|UP_IT9";
+//        uid = "ROF_EXP_CAT;1;2015-01-07 00:00:00;UP_IT9";
+        List<String> pks = Arrays.asList(uid.split("\\|"));
+        System.out.println("pks = " + pks);
+        System.out.println("pks(0) = " + pks.get(0));
+
+    }
 }

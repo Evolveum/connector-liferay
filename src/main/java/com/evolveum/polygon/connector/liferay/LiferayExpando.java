@@ -1,6 +1,7 @@
 package com.evolveum.polygon.connector.liferay;
 
 import com.evolveum.polygon.connector.liferay.expandovalue.ExpandoValueServiceSoap;
+import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
@@ -56,6 +57,9 @@ public class LiferayExpando {
             return (T) val;
         }
 
+        if (connectorValue==null)
+            return null;
+
         if (liferayType.isAssignableFrom(connectorValue.getClass())) {
             return (T)connectorValue;
         }
@@ -82,6 +86,19 @@ public class LiferayExpando {
                 return value.getTime();
             } catch (ParseException e) {
                 throw new InvalidAttributeValueException("not parsable date: '" + liferayValue + "', connectorType: " + connectorType, e);
+            }
+        }
+
+        if (liferayType.getName().equals(Integer.class.getName())) {
+            try {
+                if (StringUtil.isBlank(liferayValue)) {
+                    return null;
+                }
+                Integer value = Integer.parseInt(liferayValue);
+                LOG.ok("converting value '" + liferayValue + "' from type '" + liferayType + "' to type '" + connectorType + "', result: " + value + " (" + value + ")");
+                return value;
+            } catch (NumberFormatException e) {
+                throw new InvalidAttributeValueException("not parsable Integer: '" + liferayValue + "', connectorType: " + connectorType, e);
             }
         }
 
