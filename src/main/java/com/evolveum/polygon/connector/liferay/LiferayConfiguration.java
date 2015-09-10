@@ -54,6 +54,8 @@ public class LiferayConfiguration extends AbstractConfiguration {
 
     private Boolean ignoreJSONException = false;
 
+    private Boolean ignoreRemoteExceptionWhenUpdatePassword = false;
+
     private boolean associateOrganizationWithMainSite = false;
 
     @Override
@@ -156,10 +158,6 @@ public class LiferayConfiguration extends AbstractConfiguration {
         return customFields;
     }
 
-    public void setCustomFields(String[] customFields) {
-        this.customFields = customFields;
-    }
-
     public boolean parseCustomFields() {
         if (this.customFields == null || this.customFields.length == 0) {
             return true;
@@ -259,5 +257,17 @@ public class LiferayConfiguration extends AbstractConfiguration {
         this.associateOrganizationWithMainSite = associateOrganizationWithMainSite;
     }
 
+    public void setCustomFields(String[] customFields) {
+        this.customFields = customFields;
+    }
 
+    @ConfigurationProperty(displayMessageKey = "liferay.config.ignoreRemoteExceptionWhenUpdatePassword",
+            helpMessageKey = "liferay.config.ignoreRemoteExceptionWhenUpdatePassword.help")
+    public Boolean getIgnoreRemoteExceptionWhenUpdatePassword() {
+        return ignoreRemoteExceptionWhenUpdatePassword;
+    }
+
+    public void setIgnoreRemoteExceptionWhenUpdatePassword(Boolean ignoreRemoteExceptionWhenUpdatePassword) {
+        this.ignoreRemoteExceptionWhenUpdatePassword = ignoreRemoteExceptionWhenUpdatePassword;
+    }
 }

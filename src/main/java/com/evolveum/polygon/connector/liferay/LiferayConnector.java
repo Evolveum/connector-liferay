@@ -672,8 +672,13 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
                 userService.updatePassword(toLong(uid), password, password, passwordReset);
                 LOG.ok("Password for Uid {0} was changed", uid.getUidValue());
             } catch (java.rmi.RemoteException e) {
-                LOG.error("SEE Liferay log, when UserPasswordException exceed, compare old vs. new password, Liferay don't accept password same as current");
-                throw new ConnectorIOException(e.getMessage(), e);
+                if (!configuration.getIgnoreRemoteExceptionWhenUpdatePassword()) {
+                    LOG.error(e, "SEE Liferay log, when UserPasswordException exceed, compare old vs. new password, Liferay don't accept password same as current");
+                    throw new ConnectorIOException(e.getMessage(), e);
+                }
+                else {
+                    LOG.error(e, "ignoreRemoteExceptionWhenUpdatePassword = true, RemoteException is ignored SEE Liferay log");
+                }
             }
         }
 
