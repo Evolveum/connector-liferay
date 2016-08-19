@@ -37,7 +37,7 @@ public class LiferayRoles {
     // if roles not null, modify
     boolean modifyRoles = false;
 
-    public LiferayRoles(Set<Attribute> attributes, String attrName, String[] defaultVals, RoleServiceSoap roleService, GroupServiceSoap groupService, Long companyId) throws RemoteException {
+    public LiferayRoles(Set<Attribute> attributes, String attrName, RoleServiceSoap roleService, GroupServiceSoap groupService, LiferayConfiguration configuration) throws RemoteException {
         List<Object> roles = null;
         for (Attribute attr : attributes) {
             if (attrName.equals(attr.getName())) {
@@ -51,7 +51,7 @@ public class LiferayRoles {
                         }
 
                         LiferayRoleGroup lrg = new LiferayRoleGroup(role);
-                        lrg.computeIds(roleService, groupService, companyId);
+                        lrg.computeIds(roleService, groupService, configuration.getCompanyId(), configuration);
                         values.add(lrg);
                     }
                 }
@@ -59,34 +59,34 @@ public class LiferayRoles {
         }
 
         // set default roles if needed
-        if (modifyRoles && values.isEmpty() && defaultVals != null) {
-            for (String defaultRole : defaultVals) {
+        if (modifyRoles && values.isEmpty() && configuration.getDefaultRoles() != null) {
+            for (String defaultRole : configuration.getDefaultRoles()) {
                 LiferayRoleGroup lrg = new LiferayRoleGroup(defaultRole);
-                lrg.computeIds(roleService, groupService, companyId);
+                lrg.computeIds(roleService, groupService, configuration.getCompanyId(), configuration);
                 values.add(lrg);
             }
         }
         LOG.ok("roles in input: {0}, in output: {1}, modifyRoles: {2} ", roles, values, modifyRoles);
     }
 
-    public LiferayRoles(long userId, RoleServiceSoap roleService, GroupServiceSoap groupService) throws RemoteException {
+    public LiferayRoles(long userId, RoleServiceSoap roleService, GroupServiceSoap groupService, LiferayConfiguration configuration) throws RemoteException {
         RoleSoap[] roles = roleService.getUserRoles(userId);
         for (RoleSoap roleSoap : roles) {
             LiferayRoleGroup lrg = new LiferayRoleGroup(roleSoap);
             values.add(lrg);
         }
 
-        if (LiferayRoleGroup.siteCache.isEmpty()) {
+        if (configuration.siteCache.isEmpty()) {
             // initialize cache
             GroupSoap[] sites = groupService.getUserSites();
             for (GroupSoap site : sites) {
                 LOG.ok("put to siteCache {0}:{1}", site.getGroupId(), site.getName());
-                LiferayRoleGroup.siteCache.put(site.getName(), site.getGroupId());
+                configuration.siteCache.put(site.getName(), site.getGroupId());
             }
         }
 
-        for (String groupName : LiferayRoleGroup.siteCache.keySet()) {
-            Long groupId = LiferayRoleGroup.siteCache.get(groupName);
+        for (String groupName : configuration.siteCache.keySet()) {
+            Long groupId = configuration.siteCache.get(groupName);
             RoleSoap[] siteRoles = roleService.getUserGroupRoles(userId, groupId);
             for (RoleSoap roleSoap : siteRoles) {
                 LiferayRoleGroup lrg = new LiferayRoleGroup(roleSoap, LiferayRoleGroup.TYPE_SITE, groupId, groupName);

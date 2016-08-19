@@ -24,9 +24,6 @@ import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 
 import java.rmi.RemoteException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -62,11 +59,6 @@ public class LiferayRoleGroup {
     private int roleType = TYPE_REGULAR;
     private String groupName = null;
     private Long groupId = null;
-
-    // global cache
-    static Map<String, Long> roleCache = new HashMap<String, Long>();
-    static Map<String, Long> groupCache = new HashMap<String, Long>();
-    static Map<String, Long> siteCache = new HashMap<String, Long>();
 
     public LiferayRoleGroup(String value) throws InvalidAttributeValueException {
         this.value = value;
@@ -158,32 +150,26 @@ public class LiferayRoleGroup {
         return roleType == TYPE_SITE;
     }
 
-    public void computeIds(RoleServiceSoap roleService, GroupServiceSoap groupService, Long companyId) throws RemoteException {
+    public void computeIds(RoleServiceSoap roleService, GroupServiceSoap groupService, Long companyId, LiferayConfiguration configuration) throws RemoteException {
         if (StringUtil.isNotEmpty(roleName)) {
-            roleId = roleCache.get(roleName);
+            roleId = configuration.roleCache.get(roleName);
             if (roleId == null) {
                 RoleSoap role = roleService.getRole(companyId, roleName);
                 LOG.ok("put to roleCache {0}:{1}", role.getRoleId(), role.getName());
-                roleCache.put(role.getName(), role.getRoleId());
+                configuration.roleCache.put(role.getName(), role.getRoleId());
                 roleId = role.getRoleId();
             }
         }
 
         if (StringUtil.isNotEmpty(groupName)) {
-            groupId = groupCache.get(groupName);
+            groupId = configuration.groupCache.get(groupName);
             if (groupId == null) {
                 GroupSoap group = groupService.getGroup(companyId, groupName);
-                groupCache.put(group.getName(), group.getGroupId());
+                configuration.groupCache.put(group.getName(), group.getGroupId());
                 LOG.ok("put to groupCache {0}:{1}", group.getGroupId(), group.getName());
                 groupId = group.getGroupId();
             }
         }
-    }
-
-    public void cleareCache() {
-        roleCache.clear();
-        groupCache.clear();
-        siteCache.clear();
     }
 
     @Override

@@ -228,6 +228,23 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
     @Override
     public void test() {
         try {
+            String ssf = "axis.socketSecureFactory";
+            String ssfVal = "org.apache.axis.components.net.SunFakeTrustSocketFactory";
+            LOG.info(ssf + " value is: " + AxisProperties.getProperty(ssf));
+            if (this.configuration.getTrustingAllCertificates() != null && this.configuration.getTrustingAllCertificates()) {
+                // new setup to ignore
+                if (!ssfVal.equalsIgnoreCase(AxisProperties.getProperty(ssf)))
+                {
+                    synchronized (this) {
+                        Configuration configuration = this.configuration;
+                        dispose();
+                        init(configuration);
+                    }
+                }
+            }
+            else if (AxisProperties.getProperty(ssf) != null) {
+                AxisProperties.setProperty("axis.socketSecureFactory", null);
+            }
             userService.getCompanyUsersCount(configuration.getCompanyId());
         } catch (RemoteException e) {
             throw new ConnectorIOException(e.getMessage(), e);
@@ -454,7 +471,7 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
 
         LiferayRoles lr;
         try {
-            lr = new LiferayRoles(attributes, ATTR_ROLES, this.configuration.getDefaultRoles(), roleService, groupService, configuration.getCompanyId());
+            lr = new LiferayRoles(attributes, ATTR_ROLES, roleService, groupService, configuration);
         } catch (RemoteException e) {
             throw new InvalidAttributeValueException("Not parsable roles in attributes " + attributes + ", " + e, e);
         }
@@ -709,7 +726,7 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
 
         LiferayRoles lr;
         try {
-            lr = new LiferayRoles(attributes, ATTR_ROLES, this.configuration.getDefaultRoles(), roleService, groupService, configuration.getCompanyId());
+            lr = new LiferayRoles(attributes, ATTR_ROLES, roleService, groupService, configuration);
         } catch (RemoteException e) {
             throw new InvalidAttributeValueException("Not parsable roles in attributes " + attributes + ", " + e, e);
         }
@@ -864,14 +881,15 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
                 } else {
                     UserSoap[] users;
                     int userCount = userService.getCompanyUsersCount(configuration.getCompanyId());
-                    LOG.ok("Number of users in liferay: {0}", userCount);
+                    LOG.ok("Number of users in liferay: {0}, pageResultsOffset: {1}, pageSize: {2} ", userCount, options.getPagedResultsOffset(), options.getPageSize());
                     users = userService.getCompanyUsers(configuration.getCompanyId(), 0, userCount);
 
                     int count = 0;
                     for (UserSoap user : users) {
-                        if (++count % 10 == 0) {
+//                        if (++count % 10 == 0) {
                             LOG.ok("executeQuery: processing {0}. of {1} users", count, userCount);
-                        }
+//                        }
+
                         ConnectorObject connectorObject = convertUserToConnectorObject(user, contactsToGet, rolesToGet, organizationsToGet, customFieldsToGet);
                         boolean finish = !handler.handle(connectorObject);
                         if (finish)
@@ -1152,7 +1170,7 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
         LiferayRoles liferayRoles = null;
         if (rolesToGet) {
             LOG.ok("starting reading roles from Liferay...");
-            liferayRoles = new LiferayRoles(user.getUserId(), roleService, groupService);
+            liferayRoles = new LiferayRoles(user.getUserId(), roleService, groupService, configuration);
         }
         OrganizationSoap organizations[] = null;
         if (organizationsToGet) {
@@ -1252,6 +1270,9 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
     private ConnectorObject convertOrganizationToConnectorObject(OrganizationSoap org) throws RemoteException {
 
         ConnectorObjectBuilder builder = new ConnectorObjectBuilder();
+        ObjectClass objectClass = new ObjectClass(ORGANIZATION_NAME);
+        builder.setObjectClass(objectClass);
+
         builder.setUid(toUid(org.getOrganizationId()));
         builder.setName(org.getName());
         addAttr(builder, ATTR_ORG_TYPE, org.getType());

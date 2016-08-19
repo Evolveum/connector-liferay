@@ -58,6 +58,11 @@ public class LiferayConfiguration extends AbstractConfiguration {
 
     private boolean associateOrganizationWithMainSite = false;
 
+    // global cache
+    Map<String, Long> roleCache = new HashMap<String, Long>();
+    Map<String, Long> groupCache = new HashMap<String, Long>();
+    Map<String, Long> siteCache = new HashMap<String, Long>();
+
     @Override
     public void validate() {
         if (isBlank(endpoint))
@@ -270,4 +275,11 @@ public class LiferayConfiguration extends AbstractConfiguration {
     public void setIgnoreRemoteExceptionWhenUpdatePassword(Boolean ignoreRemoteExceptionWhenUpdatePassword) {
         this.ignoreRemoteExceptionWhenUpdatePassword = ignoreRemoteExceptionWhenUpdatePassword;
     }
+
+    public void cleareCache() {
+        roleCache.clear();
+        groupCache.clear();
+        siteCache.clear();
+    }
+
 }
