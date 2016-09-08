@@ -537,6 +537,27 @@ public class TestClient {
     }
 
     @Test
+    public void testCreateOrg(){
+        String orgName = "test root org 2";
+        ObjectClass objectClass = new ObjectClass(LiferayConnector.ORGANIZATION_NAME);
+        Set<Attribute> attributes = new HashSet<Attribute>();
+        attributes.add(AttributeBuilder.build(Name.NAME, orgName));
+        long parent = 0;
+        attributes.add(AttributeBuilder.build("parentOrganizationId", parent));
+
+        LiferayConfiguration config = new LiferayConfiguration();
+        config.setCompanyId(TestClient.COMPANY_ID);
+        config.setEndpoint("http://localhost:8080/api/axis/");
+        config.setUsername("test");
+        config.setPlainPassword("test");
+
+        LiferayConnector lc = new LiferayConnector();
+        lc.init(config);
+
+        lc.create(objectClass, attributes, null);
+    }
+
+    @Test
     public void testOrganization() throws Exception {
         Long test2Org = 24200l;
         OrganizationSoap org = organizationSoap.getOrganization(23983l);

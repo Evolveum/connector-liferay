@@ -1360,6 +1360,9 @@ public class LiferayConnector implements PoolableConnector, TestOp, SchemaOp, Cr
                     if (type.isAssignableFrom(val.getClass())) {
                         return (T) val;
                     }
+                    if (val.getClass() == Long.class && type == String.class){
+                        return (T)Long.toString(((Long) val).longValue());
+                    }
                     throw new InvalidAttributeValueException("Unsupported type " + val.getClass() + " for attribute " + attrName);
                 }
                 throw new InvalidAttributeValueException("More than one value for attribute " + attrName);
