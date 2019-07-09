@@ -1,2 +1,2 @@
-# connector-liferay
-Polygon/ConnId connector for LifeRay portal
+# ConnId Connector for Liferay
+ConnId connector for LifeRay portal
